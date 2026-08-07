@@ -20,6 +20,8 @@
 - **Тексты на английском и русском пишутся нативно**, но идентификаторы разделов, вопросов, вариантов ответа и терминов общие. Расхождение идентификаторов роняет `tests/parity.test.ts`.
 - **Ни один факт о вендорах, моделях, ценах и протоколах не пишется по памяти.** Только сверка с первоисточником и разметка `verifiedOn` + `sources`.
 - **Все коммиты на английском**, тело сообщения объясняет причину, а не пересказывает диф.
+- **Ветка разработки — `master`**, она же дефолтная в репозитории `kryadov/ai-for-business-tutorial`
+  и она же триггерит деплой. Ветки `main` в этом репозитории нет.
 
 ## Структура файлов
 
@@ -3030,7 +3032,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -3115,7 +3117,7 @@ git commit -m "docs: add project guidance and the Pages deployment
 
 AGENTS.md carries the two rules that are invisible in the code: structure is
 shared while prose is not, and no vendor fact is written from memory."
-git push -u origin main
+git push
 ```
 
 - [ ] **Step 8: Проверить развёрнутый сайт**
