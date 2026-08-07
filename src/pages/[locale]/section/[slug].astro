@@ -1,0 +1,36 @@
+---
+import { getCollection, render } from 'astro:content'
+import Layout from '../../../components/Layout.astro'
+import { sectionBySlug } from '../../../data/sections'
+import { parseEntryId } from '../../../core/content-id'
+
+export async function getStaticPaths() {
+  const entries = await getCollection('sections')
+
+  return entries.flatMap((entry) => {
+    const parsed = parseEntryId(entry.id)
+    if (parsed === null) return []
+    return [{ params: { locale: parsed.locale, slug: parsed.slug }, props: { entry } }]
+  })
+}
+
+const { entry } = Astro.props
+const { locale, slug } = Astro.params as { locale: 'en' | 'ru'; slug: string }
+const section = sectionBySlug(slug)
+const { Content } = await render(entry)
+---
+
+<Layout title={entry.data.title} locale={locale} description={entry.data.summary}>
+  <main class="mx-auto max-w-3xl px-6 py-12">
+    {entry.data.status === 'draft' && (
+      <p class="mb-8 rounded border border-amber-400 bg-amber-50 px-4 py-2 text-sm text-amber-900">
+        {locale === 'ru' ? 'Черновик: текст этого раздела ещё не написан.' : 'Draft: this section has not been written yet.'}
+      </p>
+    )}
+    <p class="text-sm text-slate-500">{section?.order}</p>
+    <h1 class="mb-6 text-3xl font-semibold">{entry.data.title}</h1>
+    <article class="prose">
+      <Content />
+    </article>
+  </main>
+</Layout>
