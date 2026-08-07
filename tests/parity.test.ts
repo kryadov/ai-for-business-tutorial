@@ -2,6 +2,7 @@ import { readdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, test } from 'vitest'
 import { sections } from '../src/data/sections'
+import { uiStrings } from '../src/data/ui-strings'
 
 const CONTENT = join(process.cwd(), 'src', 'content')
 const LOCALES = ['en', 'ru'] as const
@@ -33,6 +34,20 @@ describe('content parity between locales', () => {
       for (const file of readdirSync(join(CONTENT, locale))) {
         const slug = file.replace(/\.mdx$/, '')
         expect(knownSlugs.has(slug), `${slug} is not in the section registry`).toBe(true)
+      }
+    }
+  })
+})
+
+describe('ui string parity', () => {
+  test('both locales define exactly the same keys', () => {
+    expect(Object.keys(uiStrings.ru).sort()).toEqual(Object.keys(uiStrings.en).sort())
+  })
+
+  test('no string is left empty', () => {
+    for (const [locale, strings] of Object.entries(uiStrings)) {
+      for (const [key, value] of Object.entries(strings)) {
+        expect(value.trim(), `${locale}.${key} is empty`).not.toBe('')
       }
     }
   })
