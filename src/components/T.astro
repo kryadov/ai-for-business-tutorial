@@ -1,0 +1,20 @@
+---
+import type { Locale } from '../core/locale'
+import { defineTerm, type TermId } from '../data/glossary'
+
+interface Props {
+  id: TermId
+  locale: Locale
+}
+
+const { id, locale } = Astro.props
+const { term, definition } = defineTerm(locale, id)
+---
+
+<abbr
+  title={definition}
+  data-term={id}
+  class="cursor-help border-b border-dotted border-slate-400 no-underline"
+>
+  <slot>{term}</slot>
+</abbr>

@@ -1,0 +1,33 @@
+---
+import Layout from '../../components/Layout.astro'
+import LocaleSwitcher from '../../components/LocaleSwitcher.astro'
+import type { Locale } from '../../core/locale'
+import { glossary, termIds } from '../../data/glossary'
+import { t } from '../../data/ui-strings'
+
+export function getStaticPaths() {
+  return [{ params: { locale: 'en' } }, { params: { locale: 'ru' } }]
+}
+
+const { locale } = Astro.params as { locale: Locale }
+const terms = termIds
+  .map((id) => ({ id, ...glossary[locale][id] }))
+  .sort((a, b) => a.term.localeCompare(b.term, locale))
+---
+
+<Layout title={t(locale, 'nav.glossary')} locale={locale}>
+  <main class="mx-auto max-w-3xl px-6 py-12">
+    <div class="mb-8 flex items-baseline justify-between">
+      <h1 class="text-3xl font-semibold">{t(locale, 'nav.glossary')}</h1>
+      <LocaleSwitcher locale={locale} path="glossary" />
+    </div>
+    <dl class="space-y-6">
+      {terms.map((term) => (
+        <div id={term.id}>
+          <dt class="font-semibold">{term.term}</dt>
+          <dd class="text-slate-700 dark:text-slate-300">{term.definition}</dd>
+        </div>
+      ))}
+    </dl>
+  </main>
+</Layout>

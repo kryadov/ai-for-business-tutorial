@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { describe, expect, test } from 'vitest'
 import { sections } from '../src/data/sections'
 import { uiStrings } from '../src/data/ui-strings'
+import { glossary, termIds } from '../src/data/glossary'
 
 const CONTENT = join(process.cwd(), 'src', 'content')
 const LOCALES = ['en', 'ru'] as const
@@ -49,6 +50,15 @@ describe('ui string parity', () => {
       for (const [key, value] of Object.entries(strings)) {
         expect(value.trim(), `${locale}.${key} is empty`).not.toBe('')
       }
+    }
+  })
+})
+
+describe('glossary parity', () => {
+  test('every registered term id is defined in both locales', () => {
+    for (const id of termIds) {
+      expect(Object.keys(glossary.en), `en is missing ${id}`).toContain(id)
+      expect(Object.keys(glossary.ru), `ru is missing ${id}`).toContain(id)
     }
   })
 })
