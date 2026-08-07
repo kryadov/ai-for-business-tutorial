@@ -1,0 +1,43 @@
+import { experimental_AstroContainer as AstroContainer } from 'astro/container'
+import { describe, expect, test } from 'vitest'
+import Sidebar from '../src/components/Sidebar.astro'
+import LocaleSwitcher from '../src/components/LocaleSwitcher.astro'
+
+describe('Sidebar', () => {
+  test('lists written sections as links and unwritten ones as plain text', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(Sidebar, {
+      props: {
+        locale: 'en',
+        currentSlug: '05-solution-classes',
+        titles: { '05-solution-classes': 'Assistants, RAG, text2SQL and agents' },
+      },
+    })
+
+    expect(html).toContain('/en/section/05-solution-classes')
+    expect(html).toContain('Assistants, RAG, text2SQL and agents')
+    expect(html).not.toContain('/en/section/01-landscape')
+    expect(html).toContain('aria-current="page"')
+  })
+})
+
+describe('LocaleSwitcher', () => {
+  test('points at the same page in the other locale', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(LocaleSwitcher, {
+      props: { locale: 'en', path: 'section/05-solution-classes' },
+    })
+
+    expect(html).toContain('/ru/section/05-solution-classes')
+    expect(html).not.toContain('/en/section/05-solution-classes')
+  })
+
+  test('works in the other direction too', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(LocaleSwitcher, {
+      props: { locale: 'ru', path: 'section/05-solution-classes' },
+    })
+
+    expect(html).toContain('/en/section/05-solution-classes')
+  })
+})

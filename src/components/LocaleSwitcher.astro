@@ -1,0 +1,23 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n'
+import type { Locale } from '../core/locale'
+import { t } from '../data/ui-strings'
+
+interface Props {
+  locale: Locale
+  path: string
+}
+
+const { locale, path } = Astro.props
+const other: Locale = locale === 'en' ? 'ru' : 'en'
+const href = getRelativeLocaleUrl(other, path)
+---
+
+<a
+  href={href}
+  hreflang={other}
+  class="text-sm underline underline-offset-4"
+  data-locale-switch={other}
+>
+  {t(locale, 'locale.switch')}
+</a>

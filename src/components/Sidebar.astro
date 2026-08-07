@@ -1,0 +1,44 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n'
+import type { Locale } from '../core/locale'
+import { sections } from '../data/sections'
+import { t } from '../data/ui-strings'
+
+interface Props {
+  locale: Locale
+  currentSlug?: string
+  titles: Readonly<Record<string, string>>
+}
+
+const { locale, currentSlug, titles } = Astro.props
+---
+
+<nav class="text-sm" aria-label={t(locale, 'nav.contents')}>
+  <p class="mb-3 font-semibold uppercase tracking-wide text-slate-500">
+    {t(locale, 'nav.contents')}
+  </p>
+  <ol class="space-y-1">
+    {sections.map((section) => {
+      const title = titles[section.slug]
+      const isAvailable = title !== undefined
+      const isCurrent = section.slug === currentSlug
+      const href = getRelativeLocaleUrl(locale, `section/${section.slug}`)
+
+      return (
+        <li>
+          {isAvailable ? (
+            <a
+              href={href}
+              aria-current={isCurrent ? 'page' : undefined}
+              class:list={['hover:underline', isCurrent && 'font-semibold']}
+            >
+              {section.order}. {title}
+            </a>
+          ) : (
+            <span class="text-slate-400">{section.order}</span>
+          )}
+        </li>
+      )
+    })}
+  </ol>
+</nav>
