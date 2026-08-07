@@ -48,23 +48,60 @@ engineers, ML researchers.
 
 ## 2. Стек и структура
 
-Vite 7 + React 19 + TypeScript + Tailwind 4 + Vitest + zod. Тот же тулчейн, что в
-`kryadov/llm-hardware-calculator`, чтобы не держать два разных конвейера.
+**Astro 7 + React 19 в островах + TypeScript + Tailwind 4 + Vitest + zod.**
 
-Дополнительно: `@mdx-js/rollup` + `remark-gfm` — проза пишется как markdown, но допускает
-React-компоненты внутри, без самодельного синтаксиса плейсхолдеров.
+Выбор объясняется двуязычностью и природой материала. Из одиннадцати разделов проза
+составляет подавляющую часть, а интерактив локализован в четырёх местах. Astro отдаёт прозу
+статическим HTML без единого килобайта JS и подключает React только на страницах квиза и
+тренажёров. Сверх того он закрывает три задачи, которые в SPA пришлось бы писать руками:
+маршрутизацию с локалью, загрузку контента по локали и схемную валидацию фронтматтера.
 
-`vite.config.ts`: `base: '/ai-for-business-tutorial/'`.
+Совместимость проверена, а не предположена: Astro 7 несёт Vite 8 внутри себя, а MDX
+подключается собственной интеграцией `@astrojs/mdx`, поэтому конфликта peer-зависимостей с
+`@mdx-js/rollup` (который требует Rollup и потому несовместим с Rolldown в Vite 8) здесь не
+возникает вовсе.
+
+Версии на дату написания спеки: `astro@7.2.0`, `@astrojs/react@6.0.2`, `@astrojs/mdx@7.0.5`,
+`react@19.2.8`, `tailwindcss@4.3.3` через `@tailwindcss/vite`, `vitest@4.1.10`, `zod@4.4.3`.
+Astro 7 требует Node `>=22.12.0`.
+
+### Конфигурация
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config'
+import react from '@astrojs/react'
+import mdx from '@astrojs/mdx'
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+  site: 'https://kryadov.github.io',
+  base: '/ai-for-business-tutorial',
+  integrations: [react(), mdx()],
+  i18n: {
+    locales: ['en', 'ru'],
+    defaultLocale: 'en',
+    routing: { prefixDefaultLocale: true, redirectToDefaultLocale: true },
+  },
+  vite: { plugins: [tailwindcss()] },
+})
+```
+
+`prefixDefaultLocale: true` выбран сознательно: оба языка получают префикс, `/en/…` и `/ru/…`
+симметричны, корень редиректит на язык по умолчанию. Асимметричный вариант, где английский
+живёт без префикса, экономит несколько символов в адресе и создаёт постоянный источник
+путаницы в ссылках.
+
+### Структура
 
 ```
 src/
   content/
     en/01-landscape.mdx … en/11-myths.mdx   проза разделов, английская
     ru/01-landscape.mdx … ru/11-myths.mdx   проза разделов, русская
-    facts.test.ts                           проверка свежести фактов
-    parity.test.ts                          проверка паритета языков
+  content.config.ts                     коллекция sections: glob-загрузчик + zod-схема фронтматтера
   data/
-    sections.ts                         реестр разделов: id, slug, порядок, виджет
+    sections.ts                         реестр разделов: sectionId, slug, порядок, виджет
     quizzes/01.ts … 11.ts, exam.ts      скелет: id вопросов, число вариантов, ключ ответов
     quizzes/text.en.ts, text.ru.ts      формулировки и объяснения по тем же id
     decision-tree.ts                    топология дерева Раздела 10 методички + сценарии
@@ -79,21 +116,34 @@ src/
     progress.ts                         схема localStorage, чтение/запись, устойчивость к мусору
     decision-engine.ts                  обход дерева, объяснение отвергнутых веток
     discovery-summary.ts                сборка markdown-сводки и красные флаги
-    locale.ts                           определение и хранение выбранного языка
-  ui/
-    App, Sidebar, SectionPage, LocaleSwitcher, Markdown-провайдер
-    Quiz, Exam, DecisionTrainer, DiscoveryForm
-    Callout, Flow, Facts, PricingTable, TermTooltip, Glossary
+    locale.ts                           хранение выбранного языка и автоопределение
+  components/
+    Layout.astro, Sidebar.astro, LocaleSwitcher.astro
+    Callout.astro, Flow.astro, Facts.astro, PricingTable.astro, T.astro
+  islands/
+    Quiz.tsx, Exam.tsx, DecisionTrainer.tsx, DiscoveryForm.tsx
+  pages/
+    index.astro                         редирект на язык по умолчанию
+    [locale]/index.astro                титульная страница
+    [locale]/section/[slug].astro       раздел методички
+    [locale]/exam.astro, glossary.astro, trainer.astro, discovery.astro
+  tests/
+    facts.test.ts, parity.test.ts
 ```
+
+Astro-компоненты в `components/` не гидратируются вовсе. React живёт только в `islands/` и
+подключается директивами `client:visible`. Ни один остров не импортирует другой — они
+независимы и общаются исключительно через `core/progress.ts`.
 
 Разделение ответственности:
 - **проза** живёт в `.mdx` и правится как текст;
 - **данные** живут в `.ts`, типизированы и провалидированы zod;
 - **логика** живёт в `core/` чистыми функциями без React и тестируется без jsdom;
-- **UI** в `ui/` не содержит правил предметной области.
+- **представление** — в `components/` (Astro, без гидратации) и `islands/` (React) — не
+  содержит правил предметной области.
 
 Проверка на корректность границ: любой компонент из `core/` должен быть понятен и
-тестируем без чтения `ui/`, и наоборот.
+тестируем без чтения `components/` и `islands/`, и наоборот.
 
 Ни один модуль из `core/` не знает о языке ничего, кроме кода локали: подсчёт баллов, обход
 дерева и правила красных флагов работают со скелетом, а не с текстом. Локализация — вопрос
@@ -105,16 +155,25 @@ src/
 тренажёра; справа — содержимое. Все разделы доступны сразу, ничего не блокируется. Прочитанные
 и пройденные помечаются в сайдбаре.
 
-Маршрутизация — по хэшу с языком в пути: `#/en/section/05-assistants-rag-agents`,
-`#/ru/section/05-assistants-rag-agents`. GitHub Pages не требует rewrite-правил, ссылка на
-конкретный раздел на конкретном языке работает.
+Маршрутизация — настоящие статические адреса, генерируемые на сборке:
+`/ai-for-business-tutorial/en/section/05-assistants-rag-agents/` и тот же путь с `/ru/`.
+Каждый раздел на каждом языке — отдельный HTML-файл, что важно и для поисковой выдачи, и для
+печати, и для ссылки, отправленной коллеге.
 
 Переключатель языка сохраняет текущий раздел: со страницы раздела 5 на английском ведёт на
-раздел 5 на русском, а не на главную. `<html lang>` меняется вместе с языком.
+раздел 5 на русском, а не на главную. Реализуется через `getRelativeLocaleUrl` из `astro:i18n`
+и общий `sectionId`, поэтому не может разъехаться при переименовании слагов. `<html lang>`
+проставляется из `Astro.currentLocale`.
 
-Язык по умолчанию — английский. При первом заходе, если `navigator.language` начинается с
-`ru`, открывается русская версия. Явный выбор пользователя сохраняется в `localStorage`
-(`afb:locale`) и дальше главнее автоопределения.
+Язык по умолчанию — английский; корень сайта редиректит на `/en/`. Автоопределение языка
+браузера делает небольшой скрипт на титульной странице: при первом заходе, если
+`navigator.language` начинается с `ru` и сохранённого выбора нет, он уводит на `/ru/`. Явный
+выбор пользователя сохраняется в `localStorage` (`afb:locale`) и дальше главнее
+автоопределения.
+
+Автоопределение сознательно ограничено титульной страницей. Скрипт, перебрасывающий читателя
+между локалями на произвольном разделе, ломает ссылки, отправленные коллеге, и кнопку
+«назад».
 
 Прогресс: ключ `afb:progress:v1` в localStorage. Прогресс общий на оба языка — он привязан к
 идентификатору раздела, а не к локали. Раздел, прочитанный по-английски, отмечен прочитанным
@@ -334,7 +393,8 @@ presales уверенно говорить неправду. В `llm-hardware-ca
 
 ## 7. Тестирование
 
-Vitest, без jsdom везде, где это возможно.
+Vitest через `getViteConfig` из `astro/config`. Логика из `core/` тестируется без DOM;
+jsdom подключается только для React-островов.
 
 | Модуль | Что проверяем |
 |---|---|
@@ -342,15 +402,18 @@ Vitest, без jsdom везде, где это возможно.
 | `core/progress.ts` | запись и чтение, битые и чужие данные в localStorage не роняют приложение |
 | `core/decision-engine.ts` | каждый лист дерева достижим; каждый сценарий даёт ожидаемый класс; список отвергнутых веток непуст |
 | `core/discovery-summary.ts` | сборка сводки, срабатывание каждого правила красных флагов |
-| `core/locale.ts` | автоопределение языка, приоритет явного выбора над `navigator.language` |
+| `core/locale.ts` | автоопределение языка на титульной странице, приоритет явного выбора над `navigator.language` |
 | `data/*.test.ts` | zod-схемы; у каждого раздела есть квиз; у каждого варианта ответа есть объяснение; ровно один правильный ответ, если вопрос не помечен как множественный |
 | `content/facts.test.ts` | свежесть `verifiedOn`, наличие источников — в обоих языках |
 | `content/parity.test.ts` | паритет языков, см. §10 |
-| `ui/` | smoke-тесты через Testing Library: раздел рендерится, квиз отвечает на клик, тренажёр доходит до вердикта, переключатель языка сохраняет текущий раздел |
+| `components/` | Astro Container API: раздел рендерится, переключатель языка ведёт на тот же `sectionId` в другой локали |
+| `islands/` | Testing Library: квиз отвечает на клик, тренажёр доходит до вердикта, опросник собирает сводку |
 
 ## 8. Деплой
 
-`.github/workflows/deploy.yml` по образцу калькулятора: сборка и публикация на GitHub Pages.
+`.github/workflows/deploy.yml` на официальном `withastro/action@v6` плюс `actions/deploy-pages@v5`.
+В `astro.config.mjs` — `site: 'https://kryadov.github.io'` и `base: '/ai-for-business-tutorial'`.
+Node в CI — 22, как требует Astro 7.
 Репозиторий публичный, `kryadov/ai-for-business-tutorial`, лицензия MIT.
 
 Если публикуем по тегу, сразу добавляем tag-policy в окружение `github-pages`, иначе первый
@@ -365,7 +428,7 @@ gh api -X POST repos/kryadov/ai-for-business-tutorial/environments/github-pages/
 
 ## 9. Порядок работ
 
-1. Каркас: Vite, MDX, Tailwind, роутинг по хэшу с языком, переключатель языка, сайдбар,
+1. Каркас: Astro, MDX, Tailwind, i18n-маршрутизация, переключатель языка, сайдбар,
    прогресс.
 2. Раздел 5 целиком на обоих языках — проза, квиз, схемы. Самый содержательный раздел
    (ассистенты, RAG, text2SQL, агенты), на нём проверяем тон и объём в обеих версиях.
