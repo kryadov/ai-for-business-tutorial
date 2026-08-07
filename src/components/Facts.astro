@@ -1,0 +1,32 @@
+---
+import type { Locale } from '../core/locale'
+import { t } from '../data/ui-strings'
+
+interface Props {
+  verifiedOn: string
+  sources: readonly string[]
+  locale: Locale
+}
+
+const { verifiedOn, sources, locale } = Astro.props
+---
+
+<section
+  class="my-6 rounded border border-slate-300 px-4 py-3"
+  data-facts
+  data-verified-on={verifiedOn}
+>
+  <slot />
+  <footer class="mt-3 text-xs text-slate-500">
+    <span>{t(locale, 'facts.verifiedOn')} {verifiedOn}</span>
+    <ul class="mt-1 space-y-0.5">
+      {sources.map((source) => (
+        <li>
+          <a href={source} rel="nofollow noopener" class="underline underline-offset-2">
+            {source}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </footer>
+</section>

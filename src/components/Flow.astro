@@ -1,0 +1,29 @@
+---
+interface Props {
+  steps: readonly string[]
+  branchAt?: number
+  branches?: readonly string[]
+}
+
+const { steps, branchAt, branches = [] } = Astro.props
+---
+
+<ol class="my-6 space-y-2" data-flow>
+  {steps.map((step, index) => (
+    <li>
+      <div class="rounded border border-slate-300 px-4 py-2">{step}</div>
+      {index === branchAt && branches.length > 0 && (
+        <ul class="mt-2 ml-6 flex flex-wrap gap-2">
+          {branches.map((branch) => (
+            <li class="rounded border border-dashed border-slate-300 px-3 py-1 text-sm">
+              {branch}
+            </li>
+          ))}
+        </ul>
+      )}
+      {index < steps.length - 1 && (
+        <div class="my-1 ml-4 text-slate-400" aria-hidden="true">↓</div>
+      )}
+    </li>
+  ))}
+</ol>
