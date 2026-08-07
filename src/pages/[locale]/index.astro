@@ -1,0 +1,14 @@
+---
+import Layout from '../../components/Layout.astro'
+
+export function getStaticPaths() {
+  return [{ params: { locale: 'en' } }, { params: { locale: 'ru' } }]
+}
+
+const { locale } = Astro.params as { locale: 'en' | 'ru' }
+const title = locale === 'ru' ? 'AI для бизнеса' : 'AI for Business'
+---
+
+<Layout title={title} locale={locale}>
+  <h1>{title}</h1>
+</Layout>
