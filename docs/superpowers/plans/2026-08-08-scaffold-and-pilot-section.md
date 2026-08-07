@@ -20,6 +20,9 @@
 - **Тексты на английском и русском пишутся нативно**, но идентификаторы разделов, вопросов, вариантов ответа и терминов общие. Расхождение идентификаторов роняет `tests/parity.test.ts`.
 - **Ни один факт о вендорах, моделях, ценах и протоколах не пишется по памяти.** Только сверка с первоисточником и разметка `verifiedOn` + `sources`.
 - **Все коммиты на английском**, тело сообщения объясняет причину, а не пересказывает диф.
+- **Тестовое окружение по умолчанию — `node`.** DOM включается пофайлово докблоком
+  `// @vitest-environment jsdom` в тестах React-островов. Глобальный `jsdom` ломает
+  компиляцию `.astro` в Astro 7 — подробности в комментарии внутри `vitest.config.ts`.
 - **Ветка разработки — `master`**, она же дефолтная в репозитории `kryadov/ai-for-business-tutorial`
   и она же триггерит деплой. Ветки `main` в этом репозитории нет.
 
@@ -28,7 +31,7 @@
 | Файл | Ответственность |
 |---|---|
 | `astro.config.mjs` | интеграции, i18n, base, Tailwind |
-| `vitest.config.ts` | `getViteConfig` из `astro/config`, окружение jsdom для островов |
+| `vitest.config.ts` | `getViteConfig` из `astro/config`, окружение `node`; DOM включается пофайлово |
 | `src/content.config.ts` | коллекция `sections`: glob-загрузчик и zod-схема фронтматтера |
 | `src/data/sections.ts` | реестр 11 разделов: `sectionId`, `slug`, `order`, `widget` — один на оба языка |
 | `src/data/ui-strings.{en,ru}.ts` | строки интерфейса по общим ключам |
@@ -103,7 +106,7 @@
     "@types/node": "^26.2.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
-    "jsdom": "^30.0.1",
+    "jsdom": "^28.0.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",
     "vitest": "^4.1.10"
@@ -162,7 +165,16 @@ import { getViteConfig } from 'astro/config'
 
 export default getViteConfig({
   test: {
-    environment: 'jsdom',
+    // `node`, not `jsdom`, and this is load-bearing. Vitest derives transformMode
+    // "web" from a DOM environment, which Vite names the "client" environment, and
+    // Astro's vite plugin deliberately returns a browser stub for any .astro import
+    // there instead of compiling it. The Container API then gets a plain function
+    // with no isAstroComponentFactory marker, looks for a framework renderer, finds
+    // none, and throws NoMatchingRenderer — every .astro test fails.
+    //
+    // React island tests opt back into a DOM per file with the docblock
+    // `// @vitest-environment jsdom` on their first line.
+    environment: 'node',
     globals: true,
     include: ['tests/**/*.test.ts', 'src/**/*.test.{ts,tsx}'],
   },
@@ -2451,27 +2463,21 @@ Create `tests/setup.ts`:
 import '@testing-library/jest-dom/vitest'
 ```
 
-Modify `vitest.config.ts` — добавить `setupFiles`:
+Modify `vitest.config.ts` — добавить в объект `test` только одно поле. **`environment`
+остаётся `node`**; причина изложена в комментарии, который стоит в этом файле с Задачи 1.
+Переключение на `jsdom` ломает все тесты Astro-компонентов.
 
 ```ts
-/// <reference types="vitest/config" />
-import { getViteConfig } from 'astro/config'
-
-export default getViteConfig({
-  test: {
-    environment: 'jsdom',
-    globals: true,
-    include: ['tests/**/*.test.ts', 'src/**/*.test.{ts,tsx}'],
     setupFiles: ['./tests/setup.ts'],
-  },
-})
 ```
 
 - [ ] **Step 2: Написать падающий тест острова**
 
-Create `src/islands/Quiz.test.tsx`:
+Create `src/islands/Quiz.test.tsx`. Первая строка файла — докблок, включающий DOM только
+для этого файла:
 
 ```tsx
+// @vitest-environment jsdom
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, test } from 'vitest'
