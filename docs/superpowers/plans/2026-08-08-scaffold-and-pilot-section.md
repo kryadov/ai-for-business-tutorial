@@ -980,7 +980,7 @@ language once should not be re-routed by their browser on the next visit."
 
 **Files:**
 - Create: `src/components/Sidebar.astro`, `src/components/LocaleSwitcher.astro`
-- Modify: `src/components/Layout.astro`, `src/pages/[locale]/section/[slug].astro`
+- Modify: `src/pages/[locale]/section/[slug].astro`
 - Test: `tests/navigation.test.ts`
 
 **Interfaces:**
