@@ -51,6 +51,47 @@ describe('readProgress', () => {
     writeProgress(storage, progress)
     expect(readProgress(storage)).toEqual(progress)
   })
+
+  test('survives a quiz result with a non-integer score', () => {
+    storage.setItem('afb:progress:v1', JSON.stringify({
+      readSections: [],
+      quizResults: { s: { score: 3.5, total: 5, answers: [] } },
+    }))
+    expect(readProgress(storage)).toEqual({ readSections: [], quizResults: {} })
+  })
+
+  test('survives a quiz result with a negative score', () => {
+    storage.setItem('afb:progress:v1', JSON.stringify({
+      readSections: [],
+      quizResults: { s: { score: -1, total: 5, answers: [] } },
+    }))
+    expect(readProgress(storage)).toEqual({ readSections: [], quizResults: {} })
+  })
+
+  test('survives a quiz result whose answers contain a non-array', () => {
+    storage.setItem('afb:progress:v1', JSON.stringify({
+      readSections: [],
+      quizResults: { s: { score: 1, total: 5, answers: [0] } },
+    }))
+    expect(readProgress(storage)).toEqual({ readSections: [], quizResults: {} })
+  })
+
+  test('survives quizResults being an array rather than an object', () => {
+    storage.setItem('afb:progress:v1', JSON.stringify({
+      readSections: [],
+      quizResults: [{ score: 1, total: 5, answers: [] }],
+    }))
+    expect(readProgress(storage)).toEqual({ readSections: [], quizResults: {} })
+  })
+
+  test('survives an examResult with an unknown mode', () => {
+    storage.setItem('afb:progress:v1', JSON.stringify({
+      readSections: [],
+      quizResults: {},
+      examResult: { mode: 'exam', score: 1, total: 5 },
+    }))
+    expect(readProgress(storage)).toEqual({ readSections: [], quizResults: {} })
+  })
 })
 
 describe('markRead', () => {
@@ -122,5 +163,10 @@ describe('sectionMarks', () => {
     markRead(storage, 'solution-classes')
     const progress = recordQuiz(storage, 'solution-classes', { score: 5, total: 5, answers: [] })
     expect(sectionMarks(progress, 'solution-classes')).toEqual({ read: true, quizzed: true })
+  })
+
+  test('does not report quizzed for prototype-chain property names', () => {
+    const progress = readProgress(storage)
+    expect(sectionMarks(progress, 'constructor')).toEqual({ read: false, quizzed: false })
   })
 })

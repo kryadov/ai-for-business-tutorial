@@ -1,28 +1,61 @@
-import { z } from 'zod'
-
 const STORAGE_KEY = 'afb:progress:v1'
 
-const quizResultSchema = z.object({
-  score: z.number().int().min(0),
-  total: z.number().int().min(0),
-  answers: z.array(z.array(z.number().int().min(0))),
-})
+export interface QuizResult {
+  score: number
+  total: number
+  answers: number[][]
+}
 
-const examResultSchema = z.object({
-  mode: z.enum(['test', 'cards']),
-  score: z.number().int().min(0),
-  total: z.number().int().min(0),
-})
+export interface ExamResult {
+  mode: 'test' | 'cards'
+  score: number
+  total: number
+}
 
-const progressSchema = z.object({
-  readSections: z.array(z.string()),
-  quizResults: z.record(z.string(), quizResultSchema),
-  examResult: examResultSchema.optional(),
-})
+export interface Progress {
+  readSections: string[]
+  quizResults: Record<string, QuizResult>
+  examResult?: ExamResult
+}
 
-export type QuizResult = z.infer<typeof quizResultSchema>
-export type ExamResult = z.infer<typeof examResultSchema>
-export type Progress = z.infer<typeof progressSchema>
+const isNonNegativeInt = (v: unknown): v is number =>
+  typeof v === 'number' && Number.isInteger(v) && v >= 0
+
+const isStringArray = (v: unknown): v is string[] =>
+  Array.isArray(v) && v.every((item) => typeof item === 'string')
+
+const isAnswers = (v: unknown): v is number[][] =>
+  Array.isArray(v) && v.every((row) => Array.isArray(row) && row.every(isNonNegativeInt))
+
+const isQuizResult = (v: unknown): v is QuizResult => {
+  if (typeof v !== 'object' || v === null) return false
+  const r = v as Record<string, unknown>
+  return isNonNegativeInt(r.score) && isNonNegativeInt(r.total) && isAnswers(r.answers)
+}
+
+const isQuizResults = (v: unknown): v is Record<string, QuizResult> => {
+  if (typeof v !== 'object' || v === null || Array.isArray(v)) return false
+  return Object.values(v as Record<string, unknown>).every(isQuizResult)
+}
+
+const isExamResult = (v: unknown): v is ExamResult => {
+  if (typeof v !== 'object' || v === null) return false
+  const r = v as Record<string, unknown>
+  return (
+    (r.mode === 'test' || r.mode === 'cards') &&
+    isNonNegativeInt(r.score) &&
+    isNonNegativeInt(r.total)
+  )
+}
+
+const isProgress = (v: unknown): v is Progress => {
+  if (typeof v !== 'object' || v === null) return false
+  const r = v as Record<string, unknown>
+  if (!isStringArray(r.readSections)) return false
+  if (!isQuizResults(r.quizResults)) return false
+  if ('examResult' in r && r.examResult !== undefined && !isExamResult(r.examResult)) return false
+  return true
+}
 
 const empty = (): Progress => ({ readSections: [], quizResults: {} })
 
@@ -37,8 +70,8 @@ export function readProgress(storage: Storage): Progress {
   if (raw === null) return empty()
 
   try {
-    const parsed = progressSchema.safeParse(JSON.parse(raw))
-    return parsed.success ? parsed.data : empty()
+    const parsed: unknown = JSON.parse(raw)
+    return isProgress(parsed) ? parsed : empty()
   } catch {
     return empty()
   }
@@ -70,7 +103,7 @@ export interface SectionMarks {
 export function sectionMarks(progress: Progress, sectionId: string): SectionMarks {
   return {
     read: progress.readSections.includes(sectionId),
-    quizzed: sectionId in progress.quizResults,
+    quizzed: Object.hasOwn(progress.quizResults, sectionId),
   }
 }
 
