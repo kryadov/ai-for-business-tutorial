@@ -97,7 +97,7 @@ describe('quiz data integrity', () => {
             expect(
               explanations[index],
               `${locale}/${question.id} option ${index} is marked correct but its explanation does not affirm`,
-            ).toMatch(new RegExp(`^${AFFIRMATION[locale]}`))
+            ).toMatch(new RegExp(`^${AFFIRMATION[locale].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`))
           }
         }
       }
