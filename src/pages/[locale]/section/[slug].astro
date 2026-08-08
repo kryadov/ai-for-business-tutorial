@@ -7,6 +7,7 @@ import { sectionBySlug } from '../../../data/sections'
 import { parseEntryId } from '../../../core/content-id'
 import { t } from '../../../data/ui-strings'
 import type { Locale } from '../../../core/locale'
+import Quiz from '../../../islands/Quiz'
 
 export async function getStaticPaths() {
   const entries = await getCollection('sections')
@@ -51,6 +52,9 @@ const { Content } = await render(entry)
       <article class="prose max-w-none">
         <Content />
       </article>
+      {section?.widget === 'quiz' && entry.data.status === 'ready' && (
+        <Quiz sectionId={section.sectionId} locale={locale} client:visible />
+      )}
     </main>
   </div>
 </Layout>

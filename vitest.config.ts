@@ -15,5 +15,6 @@ export default getViteConfig({
     environment: 'node',
     globals: true,
     include: ['tests/**/*.test.ts', 'src/**/*.test.{ts,tsx}'],
+    setupFiles: ['./tests/setup.ts'],
   },
 })
