@@ -2,7 +2,97 @@
 section: solution-classes
 title: "Assistants, RAG, text2SQL and agents"
 summary: "The four solution classes business people mix up most, and the questions that tell them apart."
-status: draft
+status: ready
 ---
 
-Draft. The full text of this section is written in Task 12.
+import Callout from '../../components/Callout.astro'
+import Flow from '../../components/Flow.astro'
+import T from '../../components/T.astro'
+
+Four words do most of the damage in AI conversations: assistant, <T id="rag" locale="en">RAG</T>, <T id="text2sql" locale="en">text2SQL</T>, <T id="agent" locale="en">agent</T>. They get used as synonyms, as fashions, and as reassurance. They are none of those. They are four different answers to four different questions, with different costs, different data requirements and different ways of failing.
+
+Getting this wrong is not an academic error. It is the difference between a project that ships in six weeks and one that is quietly abandoned after nine months, because the team built a retrieval system for a question that was always about numbers in a database.
+
+This chapter gives you the distinctions and the questions that reveal them on a call.
+
+## 5.1 Assistants
+
+An assistant produces something for a person, and that person decides what happens next. It searches, drafts, summarises, compares, explains. It does not act.
+
+That last sentence is the whole definition. Not the model behind it, not the number of systems it reads from, not how clever the interface looks. If a human reads the output and chooses whether to send, sign, pay or delete, you are looking at an assistant.
+
+ChatGPT, Claude and the Copilot-style helpers built into document editors and IDEs are all this class, which is worth saying out loud on a call. When a client says "we already use ChatGPT, we want something more advanced", they usually mean they want the same class of tool pointed at their own data — which is the next chapter, not a different ambition.
+
+This is the class most companies should start with, and the one they are most embarrassed to propose. It sounds unambitious. It is also where the fastest returns live: an assistant that saves a lawyer forty minutes on a first draft pays for itself long before anyone agrees on what "autonomous" would mean in a regulated business.
+
+The useful question on a call: **who reads the output before anything happens?** If the answer is "a person, always", stop looking for an agent.
+
+## 5.2 RAG
+
+RAG answers questions whose answers are written down somewhere in your documents — policies, contracts, manuals, tickets, wiki pages, past proposals.
+
+The mechanism is simple, and worth being able to draw:
+
+<Flow steps={["A question arrives", "The system retrieves the relevant passages", "Those passages go into the prompt", "The model answers, citing them"]} />
+
+The retrieval step is where the value is. Everything a RAG system knows, it was handed at the moment of the question. Nothing was memorised.
+
+<Callout kind="note" title="The one sentence to remember">
+  RAG does not train the model. It hands the model the right passages at the moment of the question.
+</Callout>
+
+This matters commercially, not just technically. Because nothing is learned, removing a document from the index removes it from the system's answers immediately. Access control, freshness and corrections are all configuration — not a retraining project with a budget line. When a client says "and then the model will know our contracts", they are describing something that does not happen, and the correction is worth making gently and immediately.
+
+RAG fails in unglamorous ways: documents that contradict each other, an index nobody refreshes, and answers that are technically supported by a retrieved passage that was itself out of date.
+
+## 5.3 Text2SQL
+
+Text2SQL turns a question in plain language into a database query. "How much did we sell in the north-west last quarter, by category" is not a document question. No passage anywhere contains that number until somebody computes it.
+
+<Callout kind="note" title="The twin questions">
+  "What does our contract with this supplier say about penalties?" — that is RAG.
+  "How much did we pay this supplier last year?" — that is text2SQL.
+  They sound like the same request from the same person on the same call. They are two different projects.
+</Callout>
+
+Confusing the two is the single most common class error in this business, and it is expensive in both directions. Build retrieval for a reporting question and you get an assistant that quotes the definition of a KPI instead of its value. Build text2SQL for a policy question and you get a system that cannot answer anything not already in a column.
+
+Where text2SQL breaks is worth knowing before you promise it. It needs a schema a human could explain: tables with meaningful names, documented columns, and some agreement about what "active customer" means. On a warehouse that grew by accretion, with six date columns and no descriptions, generated queries are confidently wrong rather than obviously broken.
+
+Ask on discovery whether curated marts exist. Where analysts compute revenue by joining seven tables with caveats they carry in their heads, a model will reproduce the join and not the caveats. Where marts are already built and agreed, text2SQL starts paying quickly; where they are not, the project begins with data engineering rather than with a model, and the proposal's timeline should say so. And a returned number carries no warning label — it looks exactly as authoritative when the query joined the wrong table as when it did not. Any text2SQL deployment that feeds reporting needs a review step and a way to see the generated query.
+
+## 5.4 Agents
+
+An agent decides its own next step and acts in other systems. The decision is the point. A support case that may need the CRM, the billing system, both or neither — depending on what the customer actually wrote — is agent-shaped, because the path cannot be drawn in advance.
+
+<Flow steps={["An email arrives", "Check the CRM", "Create a task", "Send a reply"]} />
+
+Draw that chain for a client and ask one question: does every case go through exactly these steps in exactly this order? If yes, you have a <T id="workflow" locale="en">workflow</T> — cheaper, faster, testable, and boring in the way production systems should be. If the path genuinely varies with the content of the request, an agent earns its place.
+
+Multi-agent designs — a researcher, a writer, a critic, a coordinator — are a variation, not the next stage of evolution. Each additional agent multiplies cost, latency and the number of ways the thing can fail. The burden of proof belongs to the extra agents.
+
+## 5.5 When an agent is the wrong answer
+
+This is the chapter that earns your credibility on a call. Ten cases where an agent is complication without benefit:
+
+1. **Fixed steps in a fixed order.** Every invoice parsed, validated, filed. That is a workflow with a trigger.
+2. **A scheduled report.** Three queries on a Monday morning is a cron job, not a decision-maker.
+3. **One tool, one call.** If the system only ever looks something up, that is <T id="tool-calling" locale="en">tool calling</T> inside an assistant.
+4. **Onboarding sequences.** A welcome email and three tasks never vary by employee.
+5. **A form that could be a form.** If the fields are known, collect them in a form and skip the conversation.
+6. **Search dressed as autonomy.** "The agent finds the right document" is RAG with extra steps.
+7. **Multi-agent where one would do.** Five specialised agents for a support reply is usually retrieval plus one drafting step.
+8. **Actions nobody is allowed to automate.** Where every action needs sign-off anyway, the agent's autonomy is theatre — and this is often "the agent may not have those permissions" wearing a different hat.
+9. **Processes nobody has written down.** If the client cannot describe the steps, there is nothing to automate yet. Discovery first.
+10. **Volumes that do not justify it.** Twenty cases a month rarely repays the monitoring an agent needs.
+
+None of these are arguments against agents. They are arguments for spending the client's money where it returns.
+
+## Deciding on the call
+
+Four questions, in this order, will class almost any request before the technology comes up:
+
+1. **Does a person act on the output, or does the system act?** Person — assistant. System — keep going.
+2. **Is the answer in documents, or in a database?** Documents — RAG. Numbers and aggregates — text2SQL.
+3. **Are the steps always the same?** Always — workflow. It depends on the request — agent.
+4. **Is the client allowed to let it act?** If not, you are designing an assistant regardless of what anyone calls it.

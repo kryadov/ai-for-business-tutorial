@@ -2518,10 +2518,13 @@ describe('Quiz island', () => {
     const user = userEvent.setup()
     render(<Quiz sectionId="solution-classes" locale="en" />)
 
+    // Three clicks per question: pick an option, check it, move on. Two clicks
+    // would leave the loop short of the end of the bank and the result unsaved.
     for (let i = 0; i < 5; i += 1) {
       const options = screen.getAllByRole('radio')
       await user.click(options[0])
-      await user.click(screen.getByRole('button', { name: /check answer|next question/i }))
+      await user.click(screen.getByRole('button', { name: /check answer/i }))
+      await user.click(screen.getByRole('button', { name: /next question/i }))
     }
 
     const stored = readProgress(window.localStorage)
