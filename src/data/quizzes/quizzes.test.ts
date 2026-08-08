@@ -76,4 +76,48 @@ describe('quiz data integrity', () => {
       }
     }
   })
+
+  // The bilingual contract is "wording is per-locale, which option is right is not":
+  // src/data/quizzes/05.ts is the single shared answer key for both locales. This guards
+  // against a translated rewrite reordering a question's options (or the answer key
+  // drifting from a locale's text) without moving the "this is correct" explanation along
+  // with it — every prior test here stays green even when that happens, because they only
+  // check counts and lengths, never which index reads as the affirmation.
+  const AFFIRMATION: Record<(typeof LOCALES)[number], string> = {
+    en: 'Correct.',
+    ru: 'Верно.',
+  }
+
+  test('the explanation at the correct index affirms, in both locales', () => {
+    for (const quiz of Object.values(quizzes)) {
+      for (const question of quiz.questions) {
+        for (const locale of LOCALES) {
+          const { explanations } = quizText[locale][question.id]
+          for (const index of question.correct) {
+            expect(
+              explanations[index],
+              `${locale}/${question.id} option ${index} is marked correct but its explanation does not affirm`,
+            ).toMatch(new RegExp(`^${AFFIRMATION[locale]}`))
+          }
+        }
+      }
+    }
+  })
+
+  test('no explanation at a wrong index affirms, in either locale', () => {
+    for (const quiz of Object.values(quizzes)) {
+      for (const question of quiz.questions) {
+        for (const locale of LOCALES) {
+          const { explanations } = quizText[locale][question.id]
+          explanations.forEach((explanation, index) => {
+            if (question.correct.includes(index)) return
+            expect(
+              explanation.startsWith(AFFIRMATION[locale]),
+              `${locale}/${question.id} option ${index} is marked wrong but its explanation affirms`,
+            ).toBe(false)
+          })
+        }
+      }
+    }
+  })
 })
