@@ -49,7 +49,7 @@ const { Content } = await render(entry)
         </p>
       )}
       <h1 class="mb-6 text-3xl font-semibold">{entry.data.title}</h1>
-      <article class="prose max-w-none">
+      <article class="prose dark:prose-invert max-w-none">
         <Content />
       </article>
       {section?.widget === 'quiz' && entry.data.status === 'ready' && (
