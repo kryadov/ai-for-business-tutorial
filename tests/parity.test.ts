@@ -4,6 +4,8 @@ import { describe, expect, test } from 'vitest'
 import { sections } from '../src/data/sections'
 import { uiStrings } from '../src/data/ui-strings'
 import { glossary, termIds } from '../src/data/glossary'
+import { quizzes } from '../src/data/quizzes'
+import { quizText } from '../src/data/quizzes/text'
 
 const CONTENT = join(process.cwd(), 'src', 'content')
 const LOCALES = ['en', 'ru'] as const
@@ -59,6 +61,17 @@ describe('glossary parity', () => {
     for (const id of termIds) {
       expect(Object.keys(glossary.en), `en is missing ${id}`).toContain(id)
       expect(Object.keys(glossary.ru), `ru is missing ${id}`).toContain(id)
+    }
+  })
+})
+
+describe('quiz parity', () => {
+  test('every quiz question is defined in both locales', () => {
+    for (const quiz of Object.values(quizzes)) {
+      for (const question of quiz.questions) {
+        expect(quizText.en[question.id], `en is missing ${question.id}`).toBeDefined()
+        expect(quizText.ru[question.id], `ru is missing ${question.id}`).toBeDefined()
+      }
     }
   })
 })
