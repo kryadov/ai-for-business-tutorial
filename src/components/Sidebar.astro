@@ -11,6 +11,7 @@ interface Props {
 }
 
 const { locale, currentSlug, titles } = Astro.props
+const glossaryHref = getRelativeLocaleUrl(locale, 'glossary')
 ---
 
 <nav class="text-sm" aria-label={t(locale, 'nav.contents')}>
@@ -41,4 +42,9 @@ const { locale, currentSlug, titles } = Astro.props
       )
     })}
   </ol>
+  <p class="mt-4 border-t border-slate-200 pt-4 dark:border-slate-800">
+    <a href={glossaryHref} class="hover:underline">
+      {t(locale, 'nav.glossary')}
+    </a>
+  </p>
 </nav>
