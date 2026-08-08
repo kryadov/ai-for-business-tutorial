@@ -1,0 +1,72 @@
+---
+section: anatomy
+title: "What an AI solution is made of"
+summary: "The LLM is one part of a system, not the system — and the parts have names worth knowing before a vendor uses them to pad a proposal."
+status: ready
+---
+
+import Callout from '../../components/Callout.astro'
+import Flow from '../../components/Flow.astro'
+import T from '../../components/T.astro'
+
+When a client says "we want to add AI to our product," they are usually picturing one box: the model. In every system that actually ships, the model is the smallest box on the diagram. Around it sit the application that talks to the user, the data the model is allowed to see, and the tools it is allowed to call. A proposal that only mentions the model has told you nothing about what will actually get built.
+
+This chapter names the parts, so that when a vendor's slide lists six of them, you can ask which two the project actually needs.
+
+## 4.1 The shape
+
+Every AI solution, underneath the branding, has the same skeleton:
+
+<Flow steps={["User", "Application", "LLM", "Data and tools respond back through the LLM"]} />
+
+The user never talks to the model directly. The application decides what the user is allowed to ask, formats the question, and decides what to do with the answer. The model, in turn, does not read your company's files or hit your company's APIs on its own — it can only reach data and tools that the application has wired up to it. Every capability past this point is one of two things: something the model was handed to *read*, or something the model was allowed to *do*. Keeping those two apart is most of this chapter.
+
+<Callout kind="note" title="The one sentence to remember">
+  The model is a component the application calls, not the system the client is buying.
+</Callout>
+
+## 4.2 What the model is allowed to read
+
+Three names cover almost every "the AI knows our data" claim, and they solve different problems.
+
+**<T id="embeddings" locale="en">Embeddings</T>** turn a piece of text into a list of numbers positioned so that similar meanings end up near each other. This is not a product a client buys; it is the mechanism a retrieval system uses to find "the passage about late-delivery penalties" without either side using that exact phrase.
+
+**<T id="vector-db" locale="en">Vector database</T>** is where those numbers live once you have millions of documents and need to find the closest ones in milliseconds. It is infrastructure, not intelligence — a specialised index, in the same family as a search engine, tuned for "find things like this" instead of "find things containing this word."
+
+**Knowledge base** is the plain-language name for the documents themselves — the policies, tickets, manuals or contracts the system is meant to draw on. This is usually the part that takes the longest to get right, because it is a data-quality problem wearing an AI costume: contradictory versions, no owner, no update process. A vendor who leads with the vector database and glosses over the knowledge base has the emphasis backwards.
+
+Section 5 covers what a system built on top of these three actually does — this chapter is only naming the parts.
+
+## 4.3 What the model is allowed to do
+
+**<T id="tool-calling" locale="en">Tool calling</T>** is the model asking the application to run a specific action — look up an order, send an email, create a ticket — and getting a result back to reason over. "Function calling" is the same mechanism under an older name; vendors who use both terms in the same pitch deck are not describing two capabilities, only inconsistent documentation.
+
+This is the line between an assistant and an agent, and it is worth drawing precisely: a model with read access can tell a user what the refund policy says. A model with a tool call to the billing system can issue the refund. The second one needs an approval question the first one never raises — who is accountable when it acts on wrong information — and that question belongs in the proposal, not discovered in production.
+
+<Callout kind="warning" title="Ask this before scoping tools">
+  For every tool a design proposes, ask: what does this let the system *do* that it could not do before, and who signs off on it acting wrong once?
+</Callout>
+
+## 4.4 The two protocols, and why they are not rivals
+
+Two acronyms show up on almost every vendor slide now, usually presented as if a client must pick a side: MCP and A2A. They are not alternatives. They solve two different connection problems that both happen to matter in the same project.
+
+<T id="mcp" locale="en">MCP</T> is about the vertical connection in the diagram above: it standardises how an application hands a model its tools and data, so that a tool built once can be plugged into different models and applications without rewriting the plumbing each time.
+
+<T id="a2a" locale="en">A2A</T> is about the horizontal connection: it standardises how one agent — possibly built by a different team, on a different stack, inside or outside the company — talks to another agent, so that a client's procurement agent and a supplier's fulfillment agent can exchange a request without either side seeing the other's internals.
+
+<Callout kind="right" title="How to say it on a call">
+  MCP connects a model to its tools. A2A connects agents to each other. A project can need one, the other, both, or neither — depending on whether it talks to outside systems at all.
+</Callout>
+
+Do not let a vendor's slide turn this into a checklist item. Ownership, adoption and version numbers for both specifications move fast enough that a number printed on a slide today is routinely wrong within the quarter — do not repeat one from memory, and treat any recruiter-deck claim about "full A2A compliance" as a question to verify, not a fact to relay. What is stable is the shape of the problem each one addresses, and that shape is what you can safely reason about on a call without checking a source first.
+
+## 4.5 The question that pays for this chapter
+
+Not every project needs all four boxes. An internal FAQ assistant needs an application, a model, and a knowledge base — no tools, no protocols, nothing that acts. A procurement agent that negotiates with a supplier's system needs tool calling and probably A2A, and may need no vector database at all if there are no documents to search.
+
+<Callout kind="mistake" title="What inflates a proposal">
+  A vendor pitches embeddings, a vector database, tool calling, MCP and multi-agent orchestration for a request that turns out, on inspection, to be "let people search our FAQ." Every extra box is extra cost, extra latency and extra ways to fail — and none of it was asked for.
+</Callout>
+
+Before you accept a diagram, run it backwards against the request. For each box on the slide, ask two questions: what does the client's actual problem require this box to do, and would the project still work without it? If the second answer is yes, the box is on the slide because it is on the vendor's product, not because the project needs it — and that is the sentence that turns a bloated proposal into a right-sized one.

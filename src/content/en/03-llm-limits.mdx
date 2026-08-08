@@ -1,0 +1,65 @@
+---
+section: llm-limits
+title: "What an LLM is, and where its abilities end"
+summary: "What a large language model actually does, why it forgets and hallucinates, and why 'the model knows everything' is a sales pitch, not a fact."
+status: ready
+---
+
+import Callout from '../../components/Callout.astro'
+import T from '../../components/T.astro'
+
+Every AI proposal rests on a claim about what the model can do. Most of the disappointment in this industry comes from that claim being wrong — not because anyone lied, but because nobody on either side of the table stopped to define the thing being sold. You do not need to know how a transformer is trained. You need to know, precisely, what an <T id="llm" locale="en">LLM</T> is working with when it answers, because that is what tells you what it can be trusted to do for a client.
+
+## What the model actually is
+
+A <T id="llm" locale="en">large language model</T> is a system trained to predict the next piece of text given everything before it, over and over, until the predictions read as fluent, competent language. That is the whole mechanism. It was not taught "facts" the way a database stores rows; it absorbed patterns of language from enormous volumes of text, and it reproduces those patterns convincingly.
+
+This has a consequence worth saying to a client directly: the model does not distinguish between "confident and correct" and "confident and wrong" while it is generating. Both come out equally fluent. Fluency is not a signal of accuracy — it is a signal that the sentence looks like language the model has seen before.
+
+## Tokens: the unit you are actually buying
+
+A <T id="token" locale="en">token</T> is a chunk of text — often a word, sometimes a fragment of one, sometimes a single punctuation mark. You do not need the tokenizer's rules. You need two facts about tokens, because both show up on an invoice and in a support ticket:
+
+First, tokens are what a vendor charges for. Every API call is priced per token, input and output counted separately in most pricing schemes. A verbose system prompt, a long document pasted into context, a chatty back-and-forth — all of it is metered in tokens, and the meter runs on both what you send and what you get back.
+
+Second, tokens are what a <T id="context-window" locale="en">context window</T> is measured in. Which brings up the more important limit.
+
+## The context window is working memory, not knowledge
+
+A context window is the total amount of text — prompt plus conversation history plus any documents you feed in, plus the model's own reply — that fits into a single exchange with the model. Once that budget is spent, older content falls out of view.
+
+Treat this as working memory, not long-term knowledge, and the rest of the model's behavior stops being surprising. Everything the model uses to construct an answer arrived by exactly one of two routes: it was in the training data, fixed at the point training ended, or it was placed into the prompt for this exchange. There is no third route. The model cannot reach out and check your CRM, read today's news, or recall a conversation from last week unless something — your system, your prompt, your pipeline — puts that information in front of it right now.
+
+<Callout kind="note" title="The one sentence to remember">
+  If it isn't in the prompt and it wasn't in training, the model doesn't have it — it will still answer, and the answer will still sound confident.
+</Callout>
+
+This is exactly the gap Section 5 addresses under the name RAG: a way to retrieve the right passages and place them into the prompt at the moment of the question, precisely because the model has no other way to reach a client's private documents. If a vendor tells you their assistant "just knows" your company's contracts without you handing it those contracts somehow, ask them to explain the mechanism. There has to be one.
+
+## Hallucination is not a bug report
+
+A model that hallucinates is not malfunctioning. It is doing the only thing it was built to do — produce the statistically likely continuation of the text so far — in a case where the likely continuation happens to be false. There is no error state for the model to fall into, no exception it throws when it doesn't know something. It keeps generating fluent text regardless, because fluent text generation is the entire mechanism, not a feature that switches off when the underlying facts run out.
+
+This is why "hallucination" is the wrong word to reach for in a client meeting if it invites the follow-up "so when will that be fixed?" It will not be fixed the way a bug is fixed, because it is not a deviation from correct behavior — it is what correct behavior, defined as "generate plausible text," looks like when the prompt does not contain the answer. Newer models hallucinate less often than older ones on many benchmarks, but "less often" is not "not at all," and no vendor roadmap changes that in kind.
+
+<Callout kind="mistake" title="What this sounds like when a deal goes wrong">
+  A client deploys an assistant for something with real financial or legal weight, nobody reviews its output, and the first fabricated clause or invented figure reaches a customer before anyone catches it. The failure was not the model producing a wrong answer — every model will occasionally do that. The failure was shipping it with no one checking.
+</Callout>
+
+The commercial consequence is the part worth carrying into a proposal. Where the cost of a wrong answer is low — a first draft of marketing copy, a summary someone will skim and correct — light or no review is a reasonable design choice. Where the cost of a wrong answer is high — a number that goes into a contract, a clinical or legal recommendation, anything that reaches a customer unedited — a review step belongs in the architecture and in the price, not bolted on after the first incident. Selling a system for a high-stakes answer without pricing in the checking step is selling a system you have not actually designed yet.
+
+<Callout kind="right" title="The question to ask on a call">
+  Who checks this answer, and what happens if it's wrong? If nobody can answer that in one sentence, the project isn't ready to scope.
+</Callout>
+
+## What this means for the sales conversation
+
+Put the pieces together and one claim falls out cleanly: an LLM is genuinely good at working with information it is given — summarizing it, comparing it, drafting from it, answering questions about it in the moment. It is not good at knowing things nobody gave it, and it does not absorb your client's domain expertise by being pointed at their business. A model does not learn what "active customer" means at your client's company, what their last three difficult renewals looked like, or which clause in their standard contract always gets negotiated away, unless that knowledge is deliberately built into the prompt, the retrieval layer, or the workflow around the model.
+
+Anyone who tells a client their AI "already understands your business" before a single document, ticket, or process has been fed into it is describing a future state as if it were a current one. That gap — between what the model can do with information it has and what it is being credited with knowing — is where the next sections of this handbook live: how to find the data the model actually needs, and which class of solution fits the question you were actually asked.
+
+**Three questions worth asking before you write a proposal:**
+
+- Where does the information this answer needs actually come from — training, prompt, or a system nobody has connected yet?
+- What happens the day the model is confidently wrong, and who is positioned to catch it?
+- Has anyone confirmed the domain knowledge this pitch assumes is somewhere the model can actually reach?

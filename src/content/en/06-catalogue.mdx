@@ -1,0 +1,79 @@
+---
+section: catalogue
+title: "A catalogue of typical AI solutions"
+summary: "Five domains, the solution class each request maps to, and the single most common way each one disappoints."
+status: ready
+---
+
+import Callout from '../../components/Callout.astro'
+import T from '../../components/T.astro'
+
+You walk into a meeting, someone describes a problem in their own words, and you have thirty seconds to place it on the map from the last chapter before the conversation moves on. This chapter is that map, pre-filled for the five domains that generate most AI requests. For each one: the sentence the client actually says, the solution class it maps to, the data that has to exist before anyone writes a line of a proposal, and the failure mode that shows up six months in, not on day one.
+
+None of the entries below name a vendor or a product. That is deliberate. This is a catalogue of shapes, not a shortlist — the shape is what you carry into the room, the vendor is a decision you make afterward with a shortlist and a budget.
+
+## 6.1 Customer support
+
+The request usually arrives as "we want a chatbot on the website" or "our support team is drowning in tickets." Underneath, it is three different projects wearing one name.
+
+A **chatbot** answers customers directly, with nobody in the loop before the reply goes out. An **<T id="rag" locale="en">RAG</T> system over the knowledge base** answers the same questions but hands the draft to a human agent first. An **assistant for operators** sits inside the agent's tools, drafting replies, pulling up policy, summarising the ticket history — the agent still decides and still hits send.
+
+The candidate data: a knowledge base or macro library worth retrieving from, and a support team willing to be observed for a few weeks so you know what fraction of tickets are actually answerable from documents versus requiring a look at an order or an account.
+
+Say this plainly on the call: **the operator assistant is usually the right first project, not the customer-facing chatbot.** A chatbot is public-facing and unsupervised — every mistake reaches the customer who triggered it, and every gap in the knowledge base becomes a wrong answer with the company's name on it. An assistant that drafts for a trained operator has a human catching the same gaps before they leave the building, and it can go live on the messy knowledge base a company actually has, not the clean one a chatbot demands. Everyone wants to skip straight to the chatbot because it looks like the bigger win. It is usually the third project, not the first.
+
+The common disappointment: the knowledge base was written for search by employees who already knew what they were looking for, not for a system that has to answer a customer's actual, badly-phrased question. The retrieval works; the passages it retrieves answer a different question than the one asked, and nobody notices until launch.
+
+## 6.2 Sales
+
+Three requests, frequently from the same sales lead in the same conversation: "our reps can't find anything in the CRM," "proposals take too long to write," and "help me answer this RFP email."
+
+**Finding information across the CRM** is <T id="rag" locale="en">RAG</T> when the question is "what did we discuss with this account last quarter" — indexing notes, call transcripts and emails. It becomes <T id="text2sql" locale="en">text2SQL</T> the moment the question is really "how many deals in this segment closed above this size" — a number, not a passage. Reps ask both in the same breath, which is exactly the twin-question trap from the last chapter.
+
+**Drafting proposals** is an assistant task: a first pass a person edits, ideally pulling boilerplate and pricing logic from past, won proposals rather than starting blank. **Generating replies** to inbound leads is the same shape, narrower — draft, not send, with the rep who knows the account still pressing the button.
+
+The candidate data: a CRM with notes that are actually notes and not one-word status updates, and — for proposals — a library of past documents worth learning boilerplate from, ideally tagged by outcome so the model isn't taught equally from proposals that won and ones that lost.
+
+The common disappointment: half the useful information about a deal lives in a rep's head or a WhatsApp thread, not in the CRM, so the system answers confidently from the half that was written down and a manager assumes it saw everything.
+
+## 6.3 Legal processes
+
+The phrasing here is usually specific: "we need to review contracts faster," "compare this draft against our standard template," or "pull out all the parties, dates and obligations from this pile of PDFs."
+
+**Contract analysis** — flagging risky clauses, summarising obligations — is an assistant reading one document at a time, sometimes with <T id="rag" locale="en">RAG</T> over prior contracts for precedent. **Document comparison** against a template is narrower and more mechanical, with a clearer right answer, which makes it one of the safer places to start. **Entity extraction** — parties, dates, amounts, renewal clauses — turns unstructured contracts into structured rows, often the quiet prerequisite for everything else here: you cannot ask "which contracts renew this quarter" as a database question until someone has pulled a renewal date out of every contract.
+
+<Callout kind="mistake" title="A mistake worth naming">
+  Legal teams often ask for the extraction and the analysis in the same project. Do the extraction first, on its own, and let a lawyer check a sample against the source documents before anything downstream depends on those fields being right.
+</Callout>
+
+The candidate data: contracts in a readable format, not scanned faxes, and ideally a standard template or playbook defining what "risky" means here, because a model has no house view on acceptable liability caps without one.
+
+The common disappointment: legal review is precedent-heavy in a way generic knowledge does not cover. A clause that is standard in one jurisdiction or industry and alarming in another gets flagged, or missed, identically, unless someone has told the system what "normal" looks like here.
+
+## 6.4 Company knowledge
+
+"Our wiki is a graveyard," "nobody can find the right document," and "I want to ask the company a question and get an answer" are three ways of describing the same growing frustration, and they map to three different levels of ambition.
+
+**Enterprise search** is the least ambitious and the most reliable: better retrieval over what already exists, ranked and permissioned correctly, returning documents rather than answers. An **intelligent knowledge base** adds a generated answer on top of search — <T id="rag" locale="en">RAG</T>, in other words, now applied company-wide rather than to one team's tickets. An **employee assistant** goes further still, often wiring in company tools alongside documents — leave balances from HR, ticket status from IT — so it answers questions that are half document, half live system.
+
+The candidate data is the same word every time and it is not optional: **access control**. A retrieval system inherits whatever permissions the underlying documents already have, or it becomes the fastest way for a junior hire to read the executive severance policy. This is worth raising before the technology, not after a demo goes well.
+
+The common disappointment: the pilot is built on a clean subset — one department's tidy folder — and works beautifully. Rolled out company-wide, it meets ten years of duplicated, contradictory, unowned documents, and the honest answer becomes "I found three versions of this policy and they disagree," which is a correct answer nobody wanted to hear.
+
+## 6.5 Analytics and reporting
+
+"Can I just ask the dashboard a question" is the request, and it maps cleanly to <T id="text2sql" locale="en">text2SQL</T> over the data warehouse — a plain-language question turned into a query, as covered in the last chapter.
+
+The candidate data is exactly the warehouse readiness question from 5.3: a schema a human could explain, ideally with curated marts already agreeing on what "active customer" or "monthly revenue" mean, because a model asked to resolve that disagreement will resolve it silently and inconsistently.
+
+The honest caveat, worth repeating in this domain specifically because the output looks like a number and numbers read as facts: **a figure produced this way still needs a review step before it reaches a report.** Nothing about a fluent, well-formatted answer indicates whether the query joined the correct tables. The failure mode is not a visible crash — it is a plausible number, delivered with total confidence, that is quietly wrong in a way that matches nobody's intuition until a board member asks a follow-up question the analyst can't defend.
+
+<Callout kind="warning" title="Before this ships to a report">
+  Two things must exist: a person whose job includes spot-checking generated numbers against a known source, and a visible query behind every answer, so that check is possible at all.
+</Callout>
+
+## Taking this into a meeting
+
+The catalogue compresses to four questions, asked in this order, regardless of domain: What does the client actually say they want? Which solution class from the last chapter does that map to? What data has to exist, in what shape, before day one? And what is the specific way this class of project usually disappoints, so you can name it before it happens rather than explain it after.
+
+A client who hears you name the failure mode before you have been paid a cent trusts the rest of the proposal more, not less.

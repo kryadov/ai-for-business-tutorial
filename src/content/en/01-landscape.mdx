@@ -1,0 +1,64 @@
+---
+section: landscape
+title: "The AI landscape: how the market is put together"
+summary: "Why ChatGPT, GPT, OpenAI and Azure OpenAI are four different things, and how to place any new name you hear."
+status: ready
+---
+
+import Callout from '../../components/Callout.astro'
+import Flow from '../../components/Flow.astro'
+import T from '../../components/T.astro'
+
+Most confusion in an AI conversation happens before anyone discusses a use case. It happens in the first two minutes, when someone says "we'll use ChatGPT" to mean four different possible things, and nobody in the room stops to ask which one.
+
+That confusion is not harmless. A statement of work built on the wrong layer gets the wrong vendor, the wrong contract, and sometimes the wrong data-residency answer, discovered after signature rather than before. This chapter exists so you never have to find that out in front of a client.
+
+## 1.1 Four layers, one word for all of them
+
+Every name you hear in this market sits at one of four layers:
+
+<Flow steps={["Company — who builds and trains", "Model — the thing that was trained", "Platform — where the model is hosted and billed", "Product — the interface a person actually opens"]} />
+
+A company trains a <T id="llm" locale="en">large language model</T>. That model gets exposed through one or more platforms, which handle hosting, billing and access. On top of a platform, someone builds a product — a chat window, a plugin, a feature inside other software. People collapse all four into one word, usually the product's name, because that is the only layer they have personally clicked on.
+
+## 1.2 ChatGPT is a product; GPT is a model
+
+OpenAI is the company. It trains a family of models under the GPT name. ChatGPT is a product — a chat interface, with its own subscription tiers, its own memory features, its own web and mobile apps — built on top of those models.
+
+The distinction matters because "ChatGPT" and "GPT" answer different questions. Ask "can we get ChatGPT to draft support replies inside our helpdesk" and the honest answer is: not directly, because ChatGPT is a closed consumer application, not something you integrate. What you can integrate is a GPT model, through an API. The product is not for sale to your codebase; the model is.
+
+<Callout kind="mistake" title="What not to say on a call">
+  "We will use the ChatGPT API"
+</Callout>
+
+<Callout kind="right" title="What to say instead">
+  "We will use a GPT model through the OpenAI API, or through Azure OpenAI if the client needs it hosted in their own cloud."
+</Callout>
+
+Here is why the first sentence costs you credibility with an engineer in the room. "ChatGPT" names a consumer product that does not expose an API in the way the sentence implies. Saying "the ChatGPT API" tells a technical listener that you have not separated the product from the model from the platform — and if you have not separated those three, nobody on the call can tell what you are actually proposing to buy, integrate, or bill. The second sentence names a model (GPT) and two platform options (OpenAI directly, or Azure OpenAI for clients with cloud or compliance requirements) — three answerable, contractable things.
+
+## 1.3 Platform is not the same thing as vendor
+
+OpenAI is a company that also runs its own platform: you call its API, you get billed by OpenAI, your data flows through OpenAI's infrastructure. Azure OpenAI is a separate platform, run by Microsoft, that resells access to the same family of models inside Microsoft's cloud — with Microsoft's contracts, Microsoft's regions, and Microsoft's compliance paperwork sitting on top.
+
+This is not a technicality for procurement to sort out later. It changes who you are negotiating with, whose data-processing agreement applies, and which region your client's data actually sits in. A bank that already runs its infrastructure on a particular cloud and cannot move data off it will care enormously about which platform serves the model — while being entirely indifferent to which company trained it. Knowing to ask "which platform, whose contract" before "which model" is a discovery skill, not a technical one.
+
+## 1.4 Claude is a product; Anthropic is the company
+
+The same layering repeats with every other builder. Anthropic is the company. Claude is the name of both the model family and the chat product built on it — closer to how "Windows" once named both Microsoft's product and, loosely, the company behind it. When a client says "we're building on Claude," ask whether they mean the chat app their team already has open in a browser tab, or the model reached through an API — the same question you would ask about ChatGPT and GPT, aimed at a different company.
+
+Google, similarly, is the company; its assistant product and its model family are separate names with their own release history, sold both as a product and, through a platform, as something to build on.
+
+## 1.5 Llama is not "a ChatGPT competitor"
+
+Meta releases the Llama family of models with openly published weights, meaning anyone can download them and run them on their own infrastructure. Comparing that to ChatGPT is a category error, not an approximation — Llama has no consumer chat app of Meta's making that plays ChatGPT's role, and ChatGPT is not something you self-host. They sit at different layers: Llama is a model you would run somewhere yourself or through a third-party platform; ChatGPT is a finished product with no equivalent download.
+
+The commercial question that follows from open weights is real, and it is not "which one is smarter": can the client run this model inside their own network, under their own audit boundary, without sending data to anyone else's platform? That question does not apply to closed products at all, and it is frequently the actual reason a client is asking about Llama in the first place.
+
+Mistral and DeepSeek build models under the same open-weight logic as Meta, alongside hosted offerings of their own; Qwen is Alibaba's model family, released the same way. None of the three ships a household-name consumer chat product the way OpenAI ships ChatGPT — which is exactly why conversations about them tend to jump straight to "can we run it ourselves," skipping the product layer entirely.
+
+## 1.6 Placing a name you have not heard before
+
+You will hear a new name on a call you were not prepared for. The four-layer model is the fast way to place it without pretending to know more than you do. Ask, in order: who built it (company), is this the thing that was trained or the thing wrapping it (model versus product), and if someone wants to build on it, through whose infrastructure would that run (platform)?
+
+A name that answers "company" is someone you might contract with, or might not, depending on which platform they route through. A name that answers "product" is something a person opens and uses, not something you integrate line by line. A name that answers "model" is a component — it needs a platform underneath it before it does anything for a client. Get those three sorted, out loud, before the conversation moves on to what the thing can actually do.
