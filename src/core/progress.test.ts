@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test } from 'vitest'
-import { markRead, readProgress, recordQuiz, writeProgress } from './progress'
+import { markRead, readProgress, recordQuiz, sectionMarks, writeProgress } from './progress'
 
 class MemoryStorage implements Storage {
   private map = new Map<string, string>();
@@ -99,5 +99,28 @@ describe('recordQuiz', () => {
       answers: [],
     })
     expect(progress.quizResults['solution-classes'].score).toBe(1)
+  })
+})
+
+describe('sectionMarks', () => {
+  test('neither mark when the section is untouched', () => {
+    const progress = readProgress(storage)
+    expect(sectionMarks(progress, 'landscape')).toEqual({ read: false, quizzed: false })
+  })
+
+  test('read only, when the section was read but has no quiz result', () => {
+    const progress = markRead(storage, 'landscape')
+    expect(sectionMarks(progress, 'landscape')).toEqual({ read: true, quizzed: false })
+  })
+
+  test('quizzed only, when a quiz result exists but the section was never read', () => {
+    const progress = recordQuiz(storage, 'solution-classes', { score: 3, total: 5, answers: [] })
+    expect(sectionMarks(progress, 'solution-classes')).toEqual({ read: false, quizzed: true })
+  })
+
+  test('both marks, when the section was read and quizzed', () => {
+    markRead(storage, 'solution-classes')
+    const progress = recordQuiz(storage, 'solution-classes', { score: 5, total: 5, answers: [] })
+    expect(sectionMarks(progress, 'solution-classes')).toEqual({ read: true, quizzed: true })
   })
 })

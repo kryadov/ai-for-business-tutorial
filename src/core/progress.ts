@@ -62,6 +62,18 @@ export function markRead(storage: Storage, sectionId: string): Progress {
   return progress
 }
 
+export interface SectionMarks {
+  readonly read: boolean
+  readonly quizzed: boolean
+}
+
+export function sectionMarks(progress: Progress, sectionId: string): SectionMarks {
+  return {
+    read: progress.readSections.includes(sectionId),
+    quizzed: sectionId in progress.quizResults,
+  }
+}
+
 export function recordQuiz(storage: Storage, sectionId: string, result: QuizResult): Progress {
   const progress = readProgress(storage)
   progress.quizResults = { ...progress.quizResults, [sectionId]: result }
