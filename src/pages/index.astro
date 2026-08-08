@@ -6,10 +6,38 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta http-equiv="refresh" content={`0; url=${base}/en/`} />
+    <meta name="robots" content="noindex" />
     <title>AI for Business</title>
+    <script is:inline define:vars={{ base }}>
+      // Runs before the redirect below so a returning reader keeps the language
+      // they picked, and a first-time Russian-speaking visitor lands on /ru/.
+      var stored = null
+      try {
+        stored = window.localStorage.getItem('afb:locale')
+      } catch (error) {
+        stored = null
+      }
+
+      var locale = stored === 'en' || stored === 'ru' ? stored : 'en'
+      if (stored === null) {
+        var languages = navigator.languages && navigator.languages.length
+          ? navigator.languages
+          : [navigator.language || 'en']
+        for (var i = 0; i < languages.length; i += 1) {
+          var subtag = String(languages[i]).toLowerCase().split('-')[0]
+          if (subtag === 'ru' || subtag === 'en') {
+            locale = subtag
+            break
+          }
+        }
+      }
+
+      window.location.replace(base + '/' + locale + '/')
+    </script>
+    <meta http-equiv="refresh" content={`1; url=${base}/en/`} />
   </head>
   <body>
     <a href={`${base}/en/`}>Continue to the handbook</a>
+    <a href={`${base}/ru/`}>Читать по-русски</a>
   </body>
 </html>

@@ -1,14 +1,37 @@
 ---
+import { getCollection } from 'astro:content'
 import Layout from '../../components/Layout.astro'
+import Sidebar from '../../components/Sidebar.astro'
+import LocaleSwitcher from '../../components/LocaleSwitcher.astro'
+import type { Locale } from '../../core/locale'
+import { parseEntryId } from '../../core/content-id'
+import { homeCopy } from '../../data/home-copy'
 
 export function getStaticPaths() {
   return [{ params: { locale: 'en' } }, { params: { locale: 'ru' } }]
 }
 
-const { locale } = Astro.params as { locale: 'en' | 'ru' }
-const title = locale === 'ru' ? 'AI для бизнеса' : 'AI for Business'
+const { locale } = Astro.params as { locale: Locale }
+const copy = homeCopy[locale]
+
+const entries = await getCollection('sections')
+const titles = Object.fromEntries(
+  entries.flatMap((entry) => {
+    const parsed = parseEntryId(entry.id)
+    return parsed?.locale === locale ? [[parsed.slug, entry.data.title]] : []
+  }),
+)
 ---
 
-<Layout title={title} locale={locale}>
-  <h1>{title}</h1>
+<Layout title={copy.title} locale={locale} description={copy.lede}>
+  <div class="mx-auto max-w-4xl px-6 py-16">
+    <div class="mb-8 flex justify-end">
+      <LocaleSwitcher locale={locale} path="" />
+    </div>
+    <h1 class="mb-6 text-4xl font-semibold">{copy.title}</h1>
+    <p class="mb-6 text-lg">{copy.lede}</p>
+    <p class="mb-2 text-slate-700 dark:text-slate-300">{copy.forWhom}</p>
+    <p class="mb-12 text-slate-700 dark:text-slate-300">{copy.notFor}</p>
+    <Sidebar locale={locale} titles={titles} />
+  </div>
 </Layout>
