@@ -73,15 +73,15 @@ export default function Quiz({ sectionId, locale }: Props) {
     setChecked(false)
     setIndex(nextIndex)
 
-    // Save after every question, not only the last one: `total` here is the
-    // quiz's fixed question count, so a reader who never returns to finish
-    // still keeps a real, resumable score for however far they got.
     // `quiz` is narrowed to non-undefined by the early return above, but the
-    // narrowing does not cross into this nested closure's own scope.
-    recordQuiz(window.localStorage, sectionId, {
-      ...scoreQuiz(quiz!, nextAnswers),
-      answers: nextAnswers,
-    })
+    // narrowing does not cross into this nested closure's own scope, hence
+    // the assertions below.
+    if (nextIndex === quiz!.questions.length) {
+      recordQuiz(window.localStorage, sectionId, {
+        ...scoreQuiz(quiz!, nextAnswers),
+        answers: nextAnswers,
+      })
+    }
   }
 
   return (

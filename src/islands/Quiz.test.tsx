@@ -39,14 +39,32 @@ describe('Quiz island', () => {
     const user = userEvent.setup()
     render(<Quiz sectionId="solution-classes" locale="en" />)
 
+    // Each question needs two button clicks to move past it — "check answer"
+    // reveals the explanation, then a separate "next question" click advances
+    // the index. A single click per iteration only gets halfway through the
+    // quiz and never reaches the last question, so both clicks are needed here
+    // to actually finish it and exercise the recordQuiz call at completion.
     for (let i = 0; i < 5; i += 1) {
       const options = screen.getAllByRole('radio')
       await user.click(options[0])
-      await user.click(screen.getByRole('button', { name: /check answer|next question/i }))
+      await user.click(screen.getByRole('button', { name: /check answer/i }))
+      await user.click(screen.getByRole('button', { name: /next question/i }))
     }
 
     const stored = readProgress(window.localStorage)
     expect(stored.quizResults['solution-classes']?.total).toBe(5)
+  })
+
+  test('does not record progress before the quiz is finished', async () => {
+    const user = userEvent.setup()
+    render(<Quiz sectionId="solution-classes" locale="en" />)
+
+    await user.click(screen.getAllByRole('radio')[0])
+    await user.click(screen.getByRole('button', { name: /check answer/i }))
+    await user.click(screen.getByRole('button', { name: /next question/i }))
+
+    const stored = readProgress(window.localStorage)
+    expect(stored.quizResults['solution-classes']).toBeUndefined()
   })
 
   test('renders nothing when the section has no quiz', () => {
