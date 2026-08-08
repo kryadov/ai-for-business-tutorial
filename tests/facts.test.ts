@@ -25,7 +25,9 @@ describe('fact freshness', () => {
         expect(block, `${file}: a Facts block has no verifiedOn`).toMatch(
           /verifiedOn="\d{4}-\d{2}-\d{2}"/,
         )
-        expect(block, `${file}: a Facts block has no sources`).toMatch(/sources=\{\[/)
+        expect(block, `${file}: a Facts block has no sources`).toMatch(
+          /sources=\{\[\s*["'][^"']+["']/,
+        )
       }
     }
   })

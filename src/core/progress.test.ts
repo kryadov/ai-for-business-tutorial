@@ -33,6 +33,16 @@ describe('readProgress', () => {
     expect(readProgress(storage)).toEqual({ readSections: [], quizResults: {} })
   })
 
+  test('a read that throws degrades to empty progress', () => {
+    class BlockedStorage extends MemoryStorage {
+      override getItem(): never {
+        throw new Error('access denied')
+      }
+    }
+
+    expect(readProgress(new BlockedStorage())).toEqual({ readSections: [], quizResults: {} })
+  })
+
   test('round-trips a valid progress', () => {
     const progress = {
       readSections: ['solution-classes'],
