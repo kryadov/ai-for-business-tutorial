@@ -13,5 +13,7 @@ export type UiStringKey =
   | 'locale.switch'
   | 'draft.notice'
   | 'facts.verifiedOn'
+  | 'progress.read'
+  | 'progress.quizzed'
 
 export type UiStrings = Record<UiStringKey, string>

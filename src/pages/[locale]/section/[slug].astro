@@ -51,6 +51,9 @@ const { Content } = await render(entry)
       <h1 class="mb-6 text-3xl font-semibold">{entry.data.title}</h1>
       <article class="prose dark:prose-invert max-w-none">
         <Content />
+        {section && (
+          <div data-read-sentinel data-section-id={section.sectionId} aria-hidden="true"></div>
+        )}
       </article>
       {section?.widget === 'quiz' && entry.data.status === 'ready' && (
         <Quiz sectionId={section.sectionId} locale={locale} client:visible />
@@ -58,3 +61,22 @@ const { Content } = await render(entry)
     </main>
   </div>
 </Layout>
+
+<script>
+  import { markRead } from '../../../core/progress'
+
+  const sentinel = document.querySelector<HTMLElement>('[data-read-sentinel]')
+  const sectionId = sentinel?.dataset.sectionId
+
+  if (sentinel && sectionId && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          markRead(window.localStorage, sectionId)
+          observer.disconnect()
+        }
+      }
+    })
+    observer.observe(sentinel)
+  }
+</script>

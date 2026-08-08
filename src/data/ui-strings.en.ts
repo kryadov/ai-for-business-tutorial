@@ -15,4 +15,6 @@ export const en: UiStrings = {
   'locale.switch': 'Читать по-русски',
   'draft.notice': 'Draft: this section has not been written yet.',
   'facts.verifiedOn': 'Checked on',
+  'progress.read': 'Read',
+  'progress.quizzed': 'Quiz completed',
 }

@@ -15,4 +15,6 @@ export const ru: UiStrings = {
   'locale.switch': 'Read in English',
   'draft.notice': 'Черновик: текст этого раздела ещё не написан.',
   'facts.verifiedOn': 'Проверено',
+  'progress.read': 'Прочитано',
+  'progress.quizzed': 'Тест пройден',
 }

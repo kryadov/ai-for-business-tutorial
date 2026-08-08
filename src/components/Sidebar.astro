@@ -14,7 +14,7 @@ const { locale, currentSlug, titles } = Astro.props
 const glossaryHref = getRelativeLocaleUrl(locale, 'glossary')
 ---
 
-<nav class="text-sm" aria-label={t(locale, 'nav.contents')}>
+<nav class="text-sm" aria-label={t(locale, 'nav.contents')} data-sidebar data-locale={locale}>
   <p class="mb-3 font-semibold uppercase tracking-wide text-slate-500">
     {t(locale, 'nav.contents')}
   </p>
@@ -26,7 +26,7 @@ const glossaryHref = getRelativeLocaleUrl(locale, 'glossary')
       const href = getRelativeLocaleUrl(locale, `section/${section.slug}`)
 
       return (
-        <li>
+        <li data-section-id={section.sectionId}>
           {isAvailable ? (
             <a
               href={href}
@@ -38,6 +38,7 @@ const glossaryHref = getRelativeLocaleUrl(locale, 'glossary')
           ) : (
             <span class="text-slate-400">{section.order}</span>
           )}
+          <span class="ml-1 inline-flex gap-1 align-middle" data-marks></span>
         </li>
       )
     })}
@@ -48,3 +49,35 @@ const glossaryHref = getRelativeLocaleUrl(locale, 'glossary')
     </a>
   </p>
 </nav>
+
+<script>
+  import { isLocale } from '../core/locale'
+  import { readProgress, sectionMarks } from '../core/progress'
+  import { t } from '../data/ui-strings'
+
+  function makeMark(glyph: string, label: string): HTMLElement {
+    const span = document.createElement('span')
+    span.textContent = glyph
+    span.setAttribute('role', 'img')
+    span.setAttribute('aria-label', label)
+    span.title = label
+    return span
+  }
+
+  const nav = document.querySelector<HTMLElement>('[data-sidebar]')
+  const locale = nav?.dataset.locale
+
+  if (nav && locale && isLocale(locale)) {
+    const progress = readProgress(window.localStorage)
+
+    nav.querySelectorAll<HTMLElement>('[data-section-id]').forEach((item) => {
+      const sectionId = item.dataset.sectionId
+      const marksContainer = item.querySelector<HTMLElement>('[data-marks]')
+      if (!sectionId || !marksContainer) return
+
+      const marks = sectionMarks(progress, sectionId)
+      if (marks.read) marksContainer.appendChild(makeMark('✓', t(locale, 'progress.read')))
+      if (marks.quizzed) marksContainer.appendChild(makeMark('◆', t(locale, 'progress.quizzed')))
+    })
+  }
+</script>

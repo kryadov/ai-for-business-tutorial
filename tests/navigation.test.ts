@@ -2,6 +2,7 @@ import { experimental_AstroContainer as AstroContainer } from 'astro/container'
 import { describe, expect, test } from 'vitest'
 import Sidebar from '../src/components/Sidebar.astro'
 import LocaleSwitcher from '../src/components/LocaleSwitcher.astro'
+import { sections } from '../src/data/sections'
 
 describe('Sidebar', () => {
   test('lists written sections as links and unwritten ones as plain text', async () => {
@@ -18,6 +19,17 @@ describe('Sidebar', () => {
     expect(html).toContain('Assistants, RAG, text2SQL and agents')
     expect(html).not.toContain('/en/section/01-landscape')
     expect(html).toContain('aria-current="page"')
+  })
+
+  test('every list item carries its section id for the progress script to key off of', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(Sidebar, {
+      props: { locale: 'en', titles: {} },
+    })
+
+    for (const section of sections) {
+      expect(html).toContain(`data-section-id="${section.sectionId}"`)
+    }
   })
 
   test('links to the glossary with a locale-prefixed href', async () => {
