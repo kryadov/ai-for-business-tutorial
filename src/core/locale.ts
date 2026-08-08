@@ -18,6 +18,16 @@ export function rememberLocale(storage: Storage, locale: Locale): void {
   storage.setItem(STORAGE_KEY, locale)
 }
 
+// Wraps rememberLocale so a blocked or unavailable storage (private browsing,
+// disabled cookies, storage quota) cannot break the navigation that triggered it.
+export function rememberLocaleSafely(storage: Storage, locale: Locale): void {
+  try {
+    rememberLocale(storage, locale)
+  } catch {
+    // Ignored on purpose: the <a href> navigation must still work.
+  }
+}
+
 export function preferredLocale(
   stored: Locale | null,
   navigatorLanguages: readonly string[],

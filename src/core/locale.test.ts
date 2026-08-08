@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { isLocale, preferredLocale, rememberLocale, storedLocale } from './locale'
+import { isLocale, preferredLocale, rememberLocale, rememberLocaleSafely, storedLocale } from './locale'
 
 class MemoryStorage implements Storage {
   private map = new Map<string, string>();
@@ -39,6 +39,26 @@ describe('storedLocale', () => {
     const storage = new MemoryStorage()
     storage.setItem('afb:locale', 'klingon')
     expect(storedLocale(storage)).toBeNull()
+  })
+})
+
+describe('rememberLocaleSafely', () => {
+  test('stores the target locale, the one the reader clicked, not the current one', () => {
+    const storage = new MemoryStorage()
+    rememberLocaleSafely(storage, 'ru')
+    expect(storedLocale(storage)).toBe('ru')
+
+    rememberLocaleSafely(storage, 'en')
+    expect(storedLocale(storage)).toBe('en')
+  })
+
+  test('swallows a storage that throws so navigation is never blocked', () => {
+    const storage = new MemoryStorage()
+    storage.setItem = () => {
+      throw new Error('storage blocked (private browsing)')
+    }
+
+    expect(() => rememberLocaleSafely(storage, 'ru')).not.toThrow()
   })
 })
 

@@ -21,3 +21,15 @@ const href = getRelativeLocaleUrl(other, path)
 >
   {t(locale, 'locale.switch')}
 </a>
+
+<script>
+  import { rememberLocaleSafely, isLocale } from '../core/locale'
+
+  document.querySelectorAll<HTMLAnchorElement>('[data-locale-switch]').forEach((link) => {
+    link.addEventListener('click', () => {
+      const target = link.dataset.localeSwitch
+      if (target === undefined || !isLocale(target)) return
+      rememberLocaleSafely(window.localStorage, target)
+    })
+  })
+</script>

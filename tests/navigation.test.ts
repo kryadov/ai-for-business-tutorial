@@ -19,6 +19,25 @@ describe('Sidebar', () => {
     expect(html).not.toContain('/en/section/01-landscape')
     expect(html).toContain('aria-current="page"')
   })
+
+  test('links to the glossary with a locale-prefixed href', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(Sidebar, {
+      props: { locale: 'en', titles: {} },
+    })
+
+    expect(html).toContain('href="/en/glossary/"')
+    expect(html).toContain('Glossary')
+  })
+
+  test('the glossary link is also locale-prefixed in Russian', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(Sidebar, {
+      props: { locale: 'ru', titles: {} },
+    })
+
+    expect(html).toContain('href="/ru/glossary/"')
+  })
 })
 
 describe('LocaleSwitcher', () => {
@@ -30,6 +49,7 @@ describe('LocaleSwitcher', () => {
 
     expect(html).toContain('/ru/section/05-solution-classes')
     expect(html).not.toContain('/en/section/05-solution-classes')
+    expect(html).toContain('data-locale-switch="ru"')
   })
 
   test('works in the other direction too', async () => {
@@ -39,5 +59,6 @@ describe('LocaleSwitcher', () => {
     })
 
     expect(html).toContain('/en/section/05-solution-classes')
+    expect(html).toContain('data-locale-switch="en"')
   })
 })
