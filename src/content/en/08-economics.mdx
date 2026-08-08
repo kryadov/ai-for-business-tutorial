@@ -1,0 +1,76 @@
+---
+section: economics
+title: "The economics of AI"
+summary: "What you're actually billed for, why GPUs cost what they cost, and when self-hosting beats an API — without a single price you'll have to update in six months."
+status: ready
+---
+
+import Callout from '../../components/Callout.astro'
+import T from '../../components/T.astro'
+
+Most proposals get the architecture right and the economics wrong. Not the total — the shape. Nobody explains why the bill this month is triple what a demo suggested, why a "small" feature turned out to have the running cost of a much bigger one, or why the client's engineering lead keeps insisting self-hosting will save money that the numbers, once you actually build them, don't support.
+
+None of what follows is a price. Prices move every quarter and any number printed here would be wrong before the ink dried. What's durable is the shape of the bill — what gets counted, what gets multiplied, and what a client is actually buying when they choose one model over another. Learn the shape and you can plug in this week's numbers yourself, on any call, without needing this book open.
+
+## 8.1 The billing unit is the token, and both directions count
+
+A <T id="token" locale="en">token</T> is roughly a word fragment — the unit models read and write in. Every commercial API meters usage in tokens, and it meters two separate streams: the tokens you send in (the prompt) and the tokens the model sends back (the completion). Both are billed. A client who prices "how much for a reply" and forgets that the question, the instructions, and the conversation history are also tokens will underestimate the bill by a wide margin.
+
+This is where a <T id="context-window" locale="en">context window</T> stops being a technical detail and becomes a line item. Chat systems that aren't built carefully resend the entire conversation history on every turn, because the model has no memory between calls — it only knows what's in the prompt this time. Turn ten doesn't cost what turn one cost; it costs turn one plus nine turns of history, every single time. A support chatbot with long-lived sessions can rack up a bill that has nothing to do with the number of questions asked and everything to do with how long each conversation ran before anyone thought about trimming it.
+
+<Callout kind="note" title="The multiplier hiding in a demo">
+  A five-turn demo and a fifty-turn real conversation are not five times and fifty times the cost of one turn — they're the sum of every turn's growing history. Ask "what's the average conversation length in production" before pricing anything that keeps a memory of itself.
+</Callout>
+
+<T id="rag" locale="en">RAG</T> adds another layer before the model ever produces a word. Retrieved passages get pasted into the prompt alongside the question, which means every RAG answer costs at minimum the question plus however many documents were pulled in to answer it. A retrieval step that returns ten long passages when three would do isn't just a quality problem — it's a bill that's three times larger than it needs to be, on every single question, forever.
+
+## 8.2 Output tokens usually cost more, and that should change how you design
+
+On most commercial pricing, generating a token costs more than reading one. This isn't an accident of a price sheet — producing each token requires a forward pass through the model, one at a time, while the tokens you send in can mostly be processed together. The asymmetry is structural, not a promotional choice a vendor could reverse next quarter.
+
+The design consequence is concrete. A feature that asks a model to restate an entire input with two words changed pays the expensive rate to reproduce content the system already had for free. A feature that asks for a diff, a patch, or "just the new section" pays the same rate for a fraction of the tokens. Not a micro-optimization — on a feature that runs thousands of times a day, "return the whole document" versus "return only what changed" can be the difference between sustainable unit economics and a feature pulled after launch.
+
+The same logic applies to verbosity settings and system prompts that ask for elaborate formatting, headers, and repeated preambles. Every word the model produces beyond the answer itself is billed at the more expensive rate, on every single call.
+
+## 8.3 <T id="inference" locale="en">Inference</T> is the cost that doesn't stop
+
+Building a feature is a project cost: it happens once, it's in the estimate, and it ends. Running that feature — inference, the act of the model actually producing an answer to a real question from a real user — is an operating cost. It recurs on every call, for as long as the feature is live, and it scales with usage rather than with effort.
+
+This is worth stating plainly to a client, because both costs get asked about in the same breath and answered as if they were one number. "How much will this cost" has a project answer and a monthly answer, and a proposal that only gives the first one is heading for an uncomfortable conversation in month three, once usage is healthy, the project is declared a success, and the invoice reflects that success for the first time.
+
+## 8.4 Why "open source" doesn't mean "cheaper"
+
+This is the pitch that shows up on nearly every AI roadmap: switch to an open-weight model, self-host it, and stop paying per token. It's not wrong that self-hosting removes the per-token bill. It's incomplete in a way that matters, because it replaces a variable cost with a fixed one, and a fixed cost doesn't care whether anyone used the system today.
+
+Self-hosting means owning, in some form, everything a vendor's API fee was quietly covering:
+
+- **Infrastructure.** Serving a model at real quality and speed needs GPUs, and GPUs are expensive for a structural reason, not a supply gimmick: the chips are specialised, in high demand from every company running the same calculation, and the market clears at what that demand can bear. A GPU idle at 2am still has to be paid for; an idle API costs nothing.
+- **Operations.** Someone has to keep the serving stack up, patched, monitored, and scaled through traffic spikes — work an API vendor already does behind their per-token price.
+- **Model upgrades.** A vendor's hosted model improves on the vendor's schedule, invisibly. A self-hosted one improves when someone on the client's team notices a new open-weight release, evaluates it, and re-deploys — a recurring job, not a one-time migration.
+- **Support and the pager.** When a hosted model degrades at 3am, someone at the client's company finds out first, not a vendor's status page. That person is a salary, whether or not the model ever fails.
+
+None of this makes self-hosting the wrong call. It means the honest comparison isn't "per-token price versus zero" — it's per-token price versus a fixed monthly floor, and what decides it is where the client's volume sits relative to that floor. A team running enough tokens that the API bill would dwarf a GPU box's monthly cost, with an engineering team that already carries the pager, has a real case for self-hosting. A team running modest volume, without infrastructure staff already on payroll, is buying a fixed cost to avoid a variable one that was smaller to begin with.
+
+<Callout kind="warning" title="What never appears on the comparison slide">
+  The self-hosting pitch compares GPU-hour cost to API price. It rarely mentions who is paged when the self-hosted model falls over on a Saturday, and what that person costs whether or not anything ever breaks.
+</Callout>
+
+## 8.5 Doing the comparison with real numbers
+
+The structure above is durable; the numbers behind it are not, which is why this section doesn't print any. What it can point you to is a tool built to hold the numbers so you don't have to memorise them.
+
+<Callout kind="note" title="Inference TCO Calculator">
+  [kryadov.github.io/llm-hardware-calculator](https://kryadov.github.io/llm-hardware-calculator/) computes the full cost of self-hosting a model — hardware, racks, power, redundancy, and staffing — and expresses it as a dollars-per-million-tokens figure. Look up the API's current price for a comparable model yourself, and put the two numbers for the same workload side by side. The calculator holds the current cost of self-hosting; you supply the current cost of the API; the comparison is only as good as how recently you checked both.
+</Callout>
+
+## Taking this into a meeting
+
+Five questions turn a vague cost conversation into a specific one:
+
+1. **What's the average conversation length, including retrieved context?** A per-question cost estimate that ignores growing history and retrieval will be wrong, and wrong in one direction — low.
+2. **Is the feature generating more than it needs to?** A diff costs less than a restatement, at the more expensive output rate, on every call.
+3. **Is this a project cost or a running cost, and does the client know which number they just asked for?**
+4. **If self-hosting is on the table, who is on call at 3am, and is that a real person already on payroll or a gap in the plan?**
+5. **What is the client's actual volume, in tokens per month, against the fixed floor a self-hosted setup would need to clear?**
+
+A proposal that answers these five before the client asks them is the one that doesn't need to be renegotiated the month the invoice arrives.

@@ -1,0 +1,66 @@
+---
+section: framework
+title: "A framework for choosing the solution"
+summary: "A decision tree you can run in your head on a call, why the other four classes are wrong for each answer, and six worked requests that prove it."
+status: ready
+---
+
+import Callout from '../../components/Callout.astro'
+import Flow from '../../components/Flow.astro'
+import T from '../../components/T.astro'
+
+Chapter 5 gave you four questions and four classes. This chapter turns them into a tree you can run silently while a client is still talking, and adds the class that question set left out: the case where the steps never change at all. Five classes, not four, and a tree that ends every branch in one of them before you have said a word back.
+
+## 10.1 The tree
+
+Start with who is on the hook for the next step.
+
+<Flow steps={["A request arrives", "Does a person read the output before anything happens, or does the system act on its own?"]} branchAt={1} branches={["A person reads it", "The system acts"]} />
+
+If a person reads it, the very next question is the one <T id="rag" locale="en">RAG</T> and <T id="text2sql" locale="en">text2SQL</T> get tangled on most often, so ask it before anything else: is the answer already written down somewhere, is it a number nobody has computed yet, or is there no existing answer at all — just a document the person needs help producing?
+
+<Flow steps={["A person reads the output", "Is the answer written down, is it a number to compute, or does it need to be produced from scratch?"]} branchAt={1} branches={["Written somewhere → RAG", "A number from records → text2SQL", "Needs producing → assistant"]} />
+
+If the system acts instead, the question that matters is whether the path ever changes.
+
+<Flow steps={["The system acts on its own", "Do the steps ever change depending on what's in the request?"]} branchAt={1} branches={["Never — workflow", "Depends on the request — agent"]} />
+
+Three questions, five endpoints. Nothing on this tree asks what model powers it, how the vendor describes it, or how many systems it touches — those are implementation details that come after the class is settled, not before.
+
+## 10.2 Why not the other four
+
+Naming the right class is half the argument. The other half is being able to say, out loud, why the four you rejected were wrong — because that is the part a client actually tests you on.
+
+**RAG.** Not text2SQL — nothing needs computing, the answer already exists as text. Not assistant — treating this as a plain assistant task drops the retrieval step, and a model asked a factual question with no passages in front of it will produce something fluent and unsourced instead of saying it doesn't know. Not agent — the job ends when the passage is handed over; nothing needs to happen in another system. Not workflow — the question changes every time, so there is no fixed sequence to lock in.
+
+**Text2SQL.** Not RAG — no document anywhere contains this figure; it exists only once someone runs the aggregation. Not assistant — a plain assistant asked "how much did we sell last quarter" will estimate from whatever it can see and sound just as confident as a correct query. Not agent — there is no path to choose between; the system translates a question into one query and runs it. Not workflow — there's no multi-step sequence to fix in place, just one translation step that has to tolerate however the question happens to be phrased.
+
+**Assistant.** Not RAG — the person doesn't want a fact retrieved, they want a draft, a comparison, an explanation built from scratch. Not text2SQL — nobody asked for a figure out of a table. Not agent — the person stays the one who decides and presses send; automating that decision is a different, riskier project nobody asked for yet. Not workflow — every draft, every contract, every email is different content going through a task that only looks repeatable from a distance.
+
+**Agent.** Not assistant — the volume or the speed of the cases means nobody can realistically read every one and decide by hand; something has to act on its own. Not workflow — the path genuinely depends on what's in the request, so forcing one fixed sequence produces the right action on some cases and the wrong one on the rest. Not RAG — the point is action, even if a retrieval step happens along the way. Not text2SQL — nobody wants a number, they want the system to do something because of it.
+
+**Workflow.** Not agent — if the steps never vary, paying for a system that re-decides its path every single run buys latency, cost and a new way to fail, for a decision that was never actually in doubt. Not assistant — nobody needs to review each run individually once the sequence is known and safe to fire automatically. Not RAG or text2SQL — nothing is being looked up or computed here; the task is executing a known sequence, not answering a question.
+
+## 10.3 The tree on six calls
+
+**A field technician asks the fault-code manual what a warning light means.** A person reads it, the answer is written down in the manuals, nobody needs to compute anything. RAG.
+
+**A claims manager asks how much was paid out in a region last month.** A person reads the answer, but no document contains that figure — it lives in the claims database and has to be summed. Text2SQL.
+
+**A recruiter asks for a first draft of a job posting from a rough set of requirements.** A person reads it and will rewrite half of it, but there is no existing answer to retrieve and no number to compute — something new has to be produced. Assistant.
+
+**A logistics team wants delayed shipments handled without a human touching every one.** The system itself has to notify the customer, rebook a carrier or escalate to a person, and which of those happens depends entirely on why the shipment is late. Agent.
+
+**A clinic wants every new patient sent the same three intake forms and a reminder two days later.** The system acts on its own, and the sequence is identical for every patient regardless of what brought them in. Workflow.
+
+**A property manager asks, in the same call, what the lease says about early termination and how much rent the portfolio collected last quarter.** Same person, same tone, two different projects: the lease question is text sitting in a document, so RAG; the rent question is a figure nobody has computed yet, so text2SQL. This is the fork from 10.1 arriving exactly as often as chapter 5 warned it would.
+
+<Callout kind="mistake" title="A pattern in that list">
+  Three of the six requests above sound, in the room, like they want "an AI that answers questions." Only one of them does in the RAG sense. The tree exists because the request and the class are rarely the same sentence.
+</Callout>
+
+## The tree tells you the shape, not the verdict
+
+Everything above answers one question: what shape does this solution take? It does not answer whether the solution is worth building. A perfectly classed agent for a process that runs eleven times a year, or a correctly scoped RAG system over a knowledge base nobody actually consults, is still a wasted quarter — that verdict belongs to the questions in chapter 2, asked before this tree, not instead of it.
+
+Run the tree, name the class, say why the other four lose — and then go back and check that the problem was worth solving in the first place. A right answer to the wrong question is still the wrong question.

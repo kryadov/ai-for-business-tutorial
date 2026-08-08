@@ -1,0 +1,82 @@
+---
+section: discovery
+title: "Discovery and gathering requirements"
+summary: "The questions that turn a client conversation into a scoped, buildable project, and what a missing answer tells you before you have written a word of a proposal."
+status: ready
+---
+
+import Callout from '../../components/Callout.astro'
+import Flow from '../../components/Flow.astro'
+import T from '../../components/T.astro'
+
+Discovery is the one meeting you get to run before you owe anyone a diagram, an estimate or a line of code. Everything downstream — the solution class from chapter 5, the domain shape from chapter 6, the security posture from chapter 7 — depends on what you learn here, and often more on what nobody in the room can answer. A good discovery is not a form you fill in. It is a sequence of questions asked in an order that matters, because each block narrows what the next block can even mean.
+
+<Flow steps={["Business", "Process", "Data", "Constraints"]} />
+
+## 9.1 Business
+
+Four questions, asked before anything else, because they decide whether there is a project at all.
+
+**What problem is being solved?** A vague version — "we want to be more efficient with AI" — means nobody has done the thinking yet. A good answer names a specific, recurring cost: "our support team spends four hours a day copying ticket details into three systems."
+
+**Who owns the process?** Not who requested the meeting — who is measured on the outcome, and who loses something if it does not improve. A client who has to think about this has not found their sponsor yet, and a project without a sponsor gets deprioritised the moment budgets tighten.
+
+**What does success look like?** "Faster" and "smarter" are not answers, they are moods. A real answer names a number and a direction: tickets resolved per agent per day, first-response time, a percentage reduction in a specific queue.
+
+**What are the current KPIs?** This is the number the success metric has to move from. If nobody in the room can state it, the "improvement" you deliver in six months will be unmeasurable, and an unmeasurable project cannot be defended in the budget review that follows it.
+
+<Callout kind="mistake" title="The recurring lesson">
+  An answer without a number, an owner and a date is not a requirement. It is an aspiration, and it belongs in a vision slide, not a scope document.
+</Callout>
+
+## 9.2 Process
+
+Business questions tell you whether the project is worth doing. Process questions tell you whether it is buildable.
+
+**Who does the work today?** A name and a role, not a department. "The finance team" cannot demo a workflow for you; the two people who actually reconcile invoices can.
+
+**What steps do they take?** Ask for the steps in order, out loud, and write them down as you hear them. If the description keeps sliding into "and then it depends," that dependency is the interesting part — go back and ask what it depends on.
+
+**Where is the manual labour?** This is the part worth automating, and it is rarely where the client points first. Clients tend to flag the step that annoys them, not the step that costs the most time; the two are not always the same step.
+
+**Where do the delays happen?** A slow step and a manual step are different problems with different fixes. A three-day approval queue is a process issue no model resolves; a client who conflates the two will expect an AI system to fix an organisational bottleneck.
+
+<Callout kind="warning" title="The process people wish they had">
+  Clients routinely describe the process on paper, not the one that actually runs. Ask for last week's real, specific case — the one with the exception, the reassigned ticket, the spreadsheet nobody admits to using — and compare it to the tidy version you were given first.
+</Callout>
+
+## 9.3 Data
+
+By this point you know what problem you are solving and what the process looks like. Now: is there anything to build on.
+
+**Are there documents?** Policies, contracts, tickets, wiki pages, past proposals — anything written down that answers questions the way <T id="rag" locale="en">RAG</T> answers questions, by retrieving the passage that already contains the answer.
+
+**Is there a CRM, warehouse or database?** A question answered by counting, summing or filtering rows is a <T id="text2sql" locale="en">text2SQL</T> question, not a documents question, and the two need entirely different projects — chapter 5 covers why that distinction gets confused more than any other.
+
+**Is there a knowledge base, and who maintains it?** A knowledge base with no owner accumulates the exact contradictions that make retrieval unreliable. Ask who edits it and how often, not just whether it exists.
+
+**Is the data structured or not?** A spreadsheet with consistent columns is closer to a database than to a document, whatever format it happens to be saved in. This question decides which of the previous two answers actually applies.
+
+Map the answer honestly against chapter 5: documents point at RAG, a database points at text2SQL, and if the client has neither — no documents worth retrieving, no structured store worth querying — the first project is not a model at all, it is the unglamorous work of writing things down and structuring them, and the proposal should say so before anyone signs it.
+
+## 9.4 Constraints
+
+The last block, and the one that silently reshapes everything already agreed. Skip it, or ask it too late, and you redesign the project in week three instead of the discovery call.
+
+**Can the cloud be used?** Some clients simply cannot send data outside their own infrastructure — by policy, by contract with their own customers, or by regulation. Find out before you have a cloud-based architecture the client cannot approve.
+
+**Are there security requirements — a specific certification, an approved vendor list, an internal review process?** Chapter 7 covers what these actually demand in practice; discovery's job is only to surface that they exist and who owns them, early enough to plan around.
+
+**Is personal data involved?** Names, health records, financial details, anything covered by data-protection law changes what "just send it to a cloud API" means, and sometimes rules it out entirely.
+
+**Are there regulatory limits specific to this industry or this use case?** A bank, a hospital and a marketing agency do not operate under the same ceiling, and the client's own compliance team usually knows the answer faster than any outside consultant will find it.
+
+## Red flags on the way out
+
+Hold these five in your head walking out of a discovery call. Each one is a missing answer that tells you something specific about the project ahead, not a reason to walk away from it.
+
+- **Personal data is present.** The cloud question is now open, not settled — revisit it before promising an architecture.
+- **No documents and no CRM.** RAG has nothing to retrieve from; the project starts with building a corpus, not a system.
+- **Process steps nobody can describe in order.** It is too early to talk about an agent, or even a workflow — describe the process first, automate it second.
+- **No named process owner.** Nobody is accountable for the outcome, which usually means nobody is actually buying the result.
+- **A high cost of error with no reviewer in the loop.** Human-in-the-loop is not an add-on for later. It belongs in the design from the first sketch.

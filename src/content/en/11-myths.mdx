@@ -1,0 +1,79 @@
+---
+section: myths
+title: "Common AI myths"
+summary: "Six things said in nearly every AI meeting, why they sound reasonable, and the question that dissolves each one."
+status: ready
+---
+
+import Callout from '../../components/Callout.astro'
+import T from '../../components/T.astro'
+
+Every meeting in this handbook's territory produces some version of these six sentences. None of them are stupid. Each one sounds reasonable, comes from somewhere real, and usually has a grain of truth buried in it — which is exactly what makes it worth naming rather than dismissing. This chapter is not a rebuttal list to memorise. It is six moments to recognise as they happen, with the one question that turns the sentence back into a real conversation.
+
+## 11.1 "We need the smartest model"
+
+What gets said: "Let's use the best model available — we don't want to be the ones who cheaped out."
+
+Why it sounds convincing: model quality is the one variable everyone can compare. Leaderboards and benchmarks turn it into a number, and a number feels like due diligence.
+
+What is actually true: capability is rarely the thing that decides whether the project works. An <T id="llm" locale="en">LLM</T> a generation behind the frontier can already outperform the process it is replacing. What actually stops these projects is data nobody can reach, permissions nobody has granted, and a process nobody has written down. Buying the smartest model does not open a locked database.
+
+The question that dissolves it: **which business problem, specifically, is this model going to be smart enough for that a cheaper one wouldn't?** Usually nobody has run that comparison, because nobody has finished describing the problem yet.
+
+## 11.2 "Agents will replace employees"
+
+What gets said: "Once we roll out agents, we can shrink the team."
+
+Why it sounds convincing: an <T id="agent" locale="en">agent</T> that acts on its own sounds like it handles a job end to end, and "end to end" sounds like "the whole job."
+
+What is actually true: in practice an agent automates one slice of a process — the part that was mechanical, well-documented, and low-stakes enough to hand over. That slice is usually not the expensive part. The expensive part was judgment calls, exceptions and relationships — exactly what nobody hands over first and what is hardest to automate at all. What tends to happen is the same team does more work, not the same work done by fewer people.
+
+The question that dissolves it: **which specific task takes a person the most time today — and does the agent actually touch that task, or the one next to it?**
+
+## 11.3 "RAG trains the model"
+
+What gets said: "So once we plug in our documents, the model will learn our company?"
+
+Why it sounds convincing: feeding documents to a model sounds like teaching it, and teaching sounds like learning.
+
+What is actually true: nothing gets learned. <T id="rag" locale="en">RAG</T> retrieves the relevant passages at the moment of the question and hands them to the model inside that one prompt; nothing persists afterward. Chapter 5 covers the mechanism in full — worth a re-read if this is the myth on the table, because the commercial consequences follow directly from it: a deleted document leaves the system's answers immediately, there is no retraining budget line, and access control is configuration rather than a project.
+
+The question that dissolves it: **if we delete this document today, does tomorrow's answer change?** It does, immediately — proof that nothing was ever memorised in the first place.
+
+## 11.4 "Open source is always cheaper"
+
+What gets said: "We'll self-host an open model — no per-token fees, so it has to come out cheaper."
+
+Why it sounds convincing: a licence with no sticker price reads as free, and a per-token invoice reads as exactly the cost people are trying to avoid.
+
+What is actually true: the token fee is usually the smallest line in the total. Self-hosting adds GPUs sized for peak load rather than average load, a team that keeps the model served and patched, and the ongoing cost of falling behind each new release instead of getting it automatically. Chapter 8 works through the arithmetic; the answer often points the opposite way from the assumption.
+
+The question that dissolves it: **who is running this at two in the morning when it falls over, and what is that person's time worth?**
+
+## 11.5 "An AI project starts with choosing a model"
+
+What gets said: "Before anything else — which model are we building on?"
+
+Why it sounds convincing: it is the most concrete-looking decision in the room, with named options and a comparison table, so it feels like the natural place to start.
+
+What is actually true: a project starts with a business problem worth solving and the data needed to solve it. The model is one of the last decisions, not the first, and often one of the least consequential — several models will clear the bar for a well-scoped problem, and swapping one for another later is usually a configuration change, not a redesign.
+
+The question that dissolves it: **if we picked the wrong model today, how much of this project would we have to redo?** Usually: less than everyone assumes, and far less than if the wrong problem had been picked.
+
+## 11.6 "We'll add guardrails later"
+
+What gets said: "Let's get it working first, then add the permissions and review layer before it opens up to more users."
+
+Why it sounds convincing: <T id="guardrails" locale="en">guardrails</T> feel like a separable add-on — a checklist appended once the interesting part is done — and skipping them gets to a working demo faster.
+
+What is actually true: retrofitting access control and human review into a system that has already shipped costs more than designing them in from the start. By then real users depend on the current behaviour, and every constraint added afterward is a change somebody has to justify breaking. Chapter 7 lays out why. And the retrofit rarely happens on a calm Tuesday by choice — it happens the week after an incident, under conditions far worse than any design review would have offered.
+
+The question that dissolves it: **what happens the first time this system is wrong in front of the wrong person — and does anything in the current build stop that from reaching them?**
+
+## Closing
+
+You now have what this handbook set out to give: not the ability to build any of this yourself, but the ability to sit in a meeting, hear a claim, and know which question to ask before agreeing to anything. You can place a request into a solution class, ask for the data before the demo, price a project honestly, and recognise these six sentences the moment they arrive instead of after the contract is signed.
+
+That is also where this handbook stops, on purpose. It has not taught you to write a retrieval pipeline, fine-tune a model, or debug a production agent at three in the morning — that is different work, done by people this handbook has told you, repeatedly, to bring into the room early rather than after the estimate turns out wrong. What it should have done is close the gap between being impressed by a demo and being able to ask the demo a hard question. That gap, closed, is the actual skill.
+
+The final exam mixes all eleven sections together, with no label telling you which chapter a question came from. That is the honest version of the test, because a real meeting never announces which chapter it is about to check.
