@@ -8,6 +8,7 @@ import { parseEntryId } from '../../../core/content-id'
 import { t } from '../../../data/ui-strings'
 import type { Locale } from '../../../core/locale'
 import Quiz from '../../../islands/Quiz'
+import { quizFor } from '../../../data/quizzes'
 
 export async function getStaticPaths() {
   const entries = await getCollection('sections')
@@ -30,6 +31,7 @@ export async function getStaticPaths() {
 const { entry, titles } = Astro.props
 const { locale, slug } = Astro.params as { locale: Locale; slug: string }
 const section = sectionBySlug(slug)
+const hasQuiz = section !== undefined && quizFor(section.sectionId) !== undefined
 const { Content } = await render(entry)
 ---
 
@@ -51,7 +53,7 @@ const { Content } = await render(entry)
         <div data-read-sentinel data-section-id={section.sectionId} aria-hidden="true"></div>
       )}
     </article>
-    {section?.widget === 'quiz' && entry.data.status === 'ready' && (
+    {section && hasQuiz && entry.data.status === 'ready' && (
       <Quiz sectionId={section.sectionId} locale={locale} client:visible />
     )}
   </ContentLayout>
