@@ -1,4 +1,4 @@
-import type { QuestionText } from './text.types'
+import type { QuestionText } from '../text.types'
 
 export const ru: Record<string, QuestionText> = {
   '05-documents-or-database': {
