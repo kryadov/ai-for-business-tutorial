@@ -13,6 +13,15 @@ import { sections } from '../src/data/sections'
 // regression here is caught for every page that uses it.
 const ASIDE_LAYOUT_CLASS = /<aside class="[^"]*\bself-start\b[^"]*\blg:sticky\b[^"]*"/
 
+// Collapsing the contents on a wide screen must give the reserved column
+// back to the article. This pins the Tailwind `has-*` variant that releases
+// `lg:w-64` on the aside when its <details data-toc> is closed -- driven
+// purely by CSS `:has()`, with no script involved. A regression here would
+// leave the aside's fixed width in place even while the list is collapsed,
+// which is exactly the bug this layout fixes.
+const ASIDE_RELEASES_WIDTH_WHEN_COLLAPSED =
+  /<aside class="[^"]*\blg:has-\[\[data-toc\]:not\(\[open\]\)\]:w-auto\b[^"]*"/
+
 describe('Sidebar', () => {
   test('lists written sections as links and unwritten ones as plain text', async () => {
     const container = await AstroContainer.create()
@@ -111,6 +120,26 @@ describe('ContentLayout', () => {
     expect(html).toMatch(ASIDE_LAYOUT_CLASS)
     expect(html).not.toContain('hidden')
     expect(html).toContain('article body')
+  })
+
+  test('collapsing the contents on a wide screen releases the reserved column', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(ContentLayout, {
+      props: { locale: 'en', titles: {} },
+      slots: { default: '<p>article body</p>' },
+    })
+
+    expect(html).toMatch(ASIDE_RELEASES_WIDTH_WHEN_COLLAPSED)
+  })
+
+  test('the toggle summary stays rendered so a collapsed reader can still expand it', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(ContentLayout, {
+      props: { locale: 'en', titles: {} },
+      slots: { default: '<p>article body</p>' },
+    })
+
+    expect(html).toMatch(/<summary[^>]*>\s*Contents\s*<\/summary>/)
   })
 })
 
