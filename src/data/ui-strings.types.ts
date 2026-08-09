@@ -1,4 +1,5 @@
 export type UiStringKey =
+  | 'nav.home'
   | 'nav.contents'
   | 'nav.glossary'
   | 'nav.exam'

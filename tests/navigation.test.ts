@@ -2,6 +2,7 @@ import { experimental_AstroContainer as AstroContainer } from 'astro/container'
 import { describe, expect, test } from 'vitest'
 import Sidebar from '../src/components/Sidebar.astro'
 import LocaleSwitcher from '../src/components/LocaleSwitcher.astro'
+import GlossaryPage from '../src/pages/[locale]/glossary.astro'
 import { sections } from '../src/data/sections'
 
 describe('Sidebar', () => {
@@ -32,6 +33,26 @@ describe('Sidebar', () => {
     }
   })
 
+  test('renders the table of contents open by default, with a localised summary label', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(Sidebar, {
+      props: { locale: 'en', titles: {} },
+    })
+
+    expect(html).toMatch(/<details[^>]*\bopen\b[^>]*data-toc/)
+    expect(html).toMatch(/<summary[^>]*>\s*Contents\s*<\/summary>/)
+  })
+
+  test('renders the table of contents open by default in Russian too', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(Sidebar, {
+      props: { locale: 'ru', titles: {} },
+    })
+
+    expect(html).toMatch(/<details[^>]*\bopen\b[^>]*data-toc/)
+    expect(html).toMatch(/<summary[^>]*>\s*Содержание\s*<\/summary>/)
+  })
+
   test('links to the glossary with a locale-prefixed href', async () => {
     const container = await AstroContainer.create()
     const html = await container.renderToString(Sidebar, {
@@ -49,6 +70,39 @@ describe('Sidebar', () => {
     })
 
     expect(html).toContain('href="/ru/glossary/"')
+  })
+
+  test('links back to the locale-prefixed front page', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(Sidebar, {
+      props: { locale: 'en', titles: {} },
+    })
+
+    expect(html).toContain('href="/en/"')
+    expect(html).toContain('AI for Business')
+  })
+
+  test('the front-page link is also locale-prefixed in Russian', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(Sidebar, {
+      props: { locale: 'ru', titles: {} },
+    })
+
+    expect(html).toContain('href="/ru/"')
+  })
+})
+
+describe('glossary page', () => {
+  test('renders the sidebar contents, not just the term list', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(GlossaryPage, {
+      params: { locale: 'en' },
+    })
+
+    for (const section of sections) {
+      expect(html).toContain(`data-section-id="${section.sectionId}"`)
+    }
+    expect(html).toContain('href="/en/"')
   })
 })
 

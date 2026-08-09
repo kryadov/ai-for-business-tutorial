@@ -34,8 +34,8 @@ const { Content } = await render(entry)
 ---
 
 <Layout title={entry.data.title} locale={locale} description={entry.data.summary}>
-  <div class="mx-auto flex max-w-6xl gap-12 px-6 py-12">
-    <aside class="hidden w-64 shrink-0 lg:block">
+  <div class="mx-auto flex max-w-6xl flex-col gap-12 px-6 py-12 lg:flex-row">
+    <aside class="w-full shrink-0 self-start lg:sticky lg:top-6 lg:w-64 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
       <Sidebar locale={locale} currentSlug={slug} titles={titles} />
     </aside>
     <main class="min-w-0 flex-1">

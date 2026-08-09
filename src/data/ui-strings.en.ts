@@ -1,6 +1,7 @@
 import type { UiStrings } from './ui-strings.types'
 
 export const en: UiStrings = {
+  'nav.home': 'AI for Business',
   'nav.contents': 'Contents',
   'nav.glossary': 'Glossary',
   'nav.exam': 'Final exam',
