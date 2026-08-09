@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content'
 import Layout from '../../components/Layout.astro'
-import Sidebar from '../../components/Sidebar.astro'
+import ContentLayout from '../../components/ContentLayout.astro'
 import LocaleSwitcher from '../../components/LocaleSwitcher.astro'
 import type { Locale } from '../../core/locale'
 import { parseEntryId } from '../../core/content-id'
@@ -30,23 +30,18 @@ const titles = Object.fromEntries(
 ---
 
 <Layout title={t(locale, 'nav.glossary')} locale={locale}>
-  <div class="mx-auto flex max-w-6xl flex-col gap-12 px-6 py-12 lg:flex-row">
-    <aside class="w-full shrink-0 self-start lg:sticky lg:top-6 lg:w-64 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
-      <Sidebar locale={locale} titles={titles} />
-    </aside>
-    <main class="min-w-0 flex-1">
-      <div class="mb-8 flex items-baseline justify-between">
-        <h1 class="text-3xl font-semibold">{t(locale, 'nav.glossary')}</h1>
-        <LocaleSwitcher locale={locale} path="glossary" />
-      </div>
-      <dl class="space-y-6">
-        {terms.map((term) => (
-          <div id={term.id}>
-            <dt class="font-semibold">{term.term}</dt>
-            <dd class="text-slate-700 dark:text-slate-300">{term.definition}</dd>
-          </div>
-        ))}
-      </dl>
-    </main>
-  </div>
+  <ContentLayout locale={locale} titles={titles}>
+    <div class="mb-8 flex items-baseline justify-between">
+      <h1 class="text-3xl font-semibold">{t(locale, 'nav.glossary')}</h1>
+      <LocaleSwitcher locale={locale} path="glossary" />
+    </div>
+    <dl class="space-y-6">
+      {terms.map((term) => (
+        <div id={term.id}>
+          <dt class="font-semibold">{term.term}</dt>
+          <dd class="text-slate-700 dark:text-slate-300">{term.definition}</dd>
+        </div>
+      ))}
+    </dl>
+  </ContentLayout>
 </Layout>

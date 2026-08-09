@@ -1,0 +1,23 @@
+---
+import Sidebar from './Sidebar.astro'
+import type { Locale } from '../core/locale'
+
+interface Props {
+  locale: Locale
+  currentSlug?: string
+  titles: Readonly<Record<string, string>>
+}
+
+const { locale, currentSlug, titles } = Astro.props
+---
+
+<div class="mx-auto flex max-w-6xl flex-col gap-12 px-6 py-12 lg:flex-row">
+  <aside
+    class="w-full shrink-0 self-start lg:sticky lg:top-6 lg:w-64 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto"
+  >
+    <Sidebar locale={locale} currentSlug={currentSlug} titles={titles} />
+  </aside>
+  <main class="min-w-0 flex-1">
+    <slot />
+  </main>
+</div>

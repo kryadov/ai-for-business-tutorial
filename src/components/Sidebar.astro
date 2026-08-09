@@ -61,7 +61,7 @@ const homeHref = getRelativeLocaleUrl(locale, '')
 <script>
   import { isLocale } from '../core/locale'
   import { readProgress, sectionMarks } from '../core/progress'
-  import { initialTocOpen, rememberTocOpenSafely, storedTocOpen } from '../core/toc'
+  import { wireTocToggle } from '../core/toc'
   import { t } from '../data/ui-strings'
 
   function makeMark(glyph: string, label: string): HTMLElement {
@@ -93,12 +93,7 @@ const homeHref = getRelativeLocaleUrl(locale, '')
   const details = nav?.querySelector<HTMLDetailsElement>('[data-toc]')
 
   if (details) {
-    const stored = storedTocOpen(window.localStorage)
     const isNarrowViewport = !window.matchMedia('(min-width: 1024px)').matches
-    details.open = initialTocOpen(stored, isNarrowViewport)
-
-    details.addEventListener('toggle', () => {
-      rememberTocOpenSafely(window.localStorage, details.open)
-    })
+    wireTocToggle(details, window.localStorage, isNarrowViewport)
   }
 </script>

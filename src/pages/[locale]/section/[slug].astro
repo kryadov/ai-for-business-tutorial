@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content'
 import Layout from '../../../components/Layout.astro'
-import Sidebar from '../../../components/Sidebar.astro'
+import ContentLayout from '../../../components/ContentLayout.astro'
 import LocaleSwitcher from '../../../components/LocaleSwitcher.astro'
 import { sectionBySlug } from '../../../data/sections'
 import { parseEntryId } from '../../../core/content-id'
@@ -34,32 +34,27 @@ const { Content } = await render(entry)
 ---
 
 <Layout title={entry.data.title} locale={locale} description={entry.data.summary}>
-  <div class="mx-auto flex max-w-6xl flex-col gap-12 px-6 py-12 lg:flex-row">
-    <aside class="w-full shrink-0 self-start lg:sticky lg:top-6 lg:w-64 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
-      <Sidebar locale={locale} currentSlug={slug} titles={titles} />
-    </aside>
-    <main class="min-w-0 flex-1">
-      <div class="mb-8 flex items-baseline justify-between">
-        <p class="text-sm text-slate-500">{section?.order}</p>
-        <LocaleSwitcher locale={locale} path={`section/${slug}`} />
-      </div>
-      {entry.data.status === 'draft' && (
-        <p class="mb-8 rounded border border-amber-400 bg-amber-50 px-4 py-2 text-sm text-amber-900">
-          {t(locale, 'draft.notice')}
-        </p>
+  <ContentLayout locale={locale} currentSlug={slug} titles={titles}>
+    <div class="mb-8 flex items-baseline justify-between">
+      <p class="text-sm text-slate-500">{section?.order}</p>
+      <LocaleSwitcher locale={locale} path={`section/${slug}`} />
+    </div>
+    {entry.data.status === 'draft' && (
+      <p class="mb-8 rounded border border-amber-400 bg-amber-50 px-4 py-2 text-sm text-amber-900">
+        {t(locale, 'draft.notice')}
+      </p>
+    )}
+    <h1 class="mb-6 text-3xl font-semibold">{entry.data.title}</h1>
+    <article class="prose dark:prose-invert max-w-none">
+      <Content />
+      {section && (
+        <div data-read-sentinel data-section-id={section.sectionId} aria-hidden="true"></div>
       )}
-      <h1 class="mb-6 text-3xl font-semibold">{entry.data.title}</h1>
-      <article class="prose dark:prose-invert max-w-none">
-        <Content />
-        {section && (
-          <div data-read-sentinel data-section-id={section.sectionId} aria-hidden="true"></div>
-        )}
-      </article>
-      {section?.widget === 'quiz' && entry.data.status === 'ready' && (
-        <Quiz sectionId={section.sectionId} locale={locale} client:visible />
-      )}
-    </main>
-  </div>
+    </article>
+    {section?.widget === 'quiz' && entry.data.status === 'ready' && (
+      <Quiz sectionId={section.sectionId} locale={locale} client:visible />
+    )}
+  </ContentLayout>
 </Layout>
 
 <script>

@@ -1,9 +1,17 @@
 import { experimental_AstroContainer as AstroContainer } from 'astro/container'
 import { describe, expect, test } from 'vitest'
 import Sidebar from '../src/components/Sidebar.astro'
+import ContentLayout from '../src/components/ContentLayout.astro'
 import LocaleSwitcher from '../src/components/LocaleSwitcher.astro'
 import GlossaryPage from '../src/pages/[locale]/glossary.astro'
 import { sections } from '../src/data/sections'
+
+// The aside must be sticky and self-aligned (defect A) and reachable on
+// mobile rather than `hidden` (defect C). Both the section page and the
+// glossary page render their aside through the shared ContentLayout
+// component (see below), so this string lives in exactly one place and a
+// regression here is caught for every page that uses it.
+const ASIDE_LAYOUT_CLASS = /<aside class="[^"]*\bself-start\b[^"]*\blg:sticky\b[^"]*"/
 
 describe('Sidebar', () => {
   test('lists written sections as links and unwritten ones as plain text', async () => {
@@ -89,6 +97,20 @@ describe('Sidebar', () => {
     })
 
     expect(html).toContain('href="/ru/"')
+  })
+})
+
+describe('ContentLayout', () => {
+  test('the aside is sticky, self-aligned and never hidden', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(ContentLayout, {
+      props: { locale: 'en', titles: {} },
+      slots: { default: '<p>article body</p>' },
+    })
+
+    expect(html).toMatch(ASIDE_LAYOUT_CLASS)
+    expect(html).not.toContain('hidden')
+    expect(html).toContain('article body')
   })
 })
 

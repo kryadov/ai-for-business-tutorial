@@ -1,5 +1,6 @@
-import { describe, expect, test } from 'vitest'
-import { initialTocOpen, rememberTocOpenSafely, storedTocOpen } from './toc'
+// @vitest-environment jsdom
+import { describe, expect, test, vi } from 'vitest'
+import { initialTocOpen, rememberTocOpenSafely, storedTocOpen, wireTocToggle } from './toc'
 
 class MemoryStorage implements Storage {
   private map = new Map<string, string>();
@@ -51,6 +52,74 @@ describe('rememberTocOpenSafely', () => {
       throw new Error('storage blocked (private browsing)')
     }
     expect(() => rememberTocOpenSafely(storage, true)).not.toThrow()
+  })
+})
+
+// A real <details> element: jsdom queues its `toggle` event as an async
+// task on every add/remove of the `open` attribute, exactly per the HTML
+// spec, so this exercises the same timing that broke the naive call site.
+function waitForQueuedToggle(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 0))
+}
+
+describe('wireTocToggle', () => {
+  test('a narrow-viewport first visit with no stored preference does not fabricate a "closed" choice', async () => {
+    const storage = new MemoryStorage()
+    const details = document.createElement('details')
+    document.body.append(details)
+
+    wireTocToggle(details, storage, /* isNarrowViewport */ true)
+
+    expect(details.open).toBe(false)
+    await waitForQueuedToggle()
+
+    // The programmatic sync fired a toggle event asynchronously. It must
+    // not have been mistaken for a reader's choice.
+    expect(storedTocOpen(storage)).toBeNull()
+  })
+
+  test('a wide-viewport first visit with no stored preference does not fabricate an "open" choice', async () => {
+    const storage = new MemoryStorage()
+    const details = document.createElement('details')
+    document.body.append(details)
+
+    wireTocToggle(details, storage, /* isNarrowViewport */ false)
+
+    expect(details.open).toBe(true)
+    await waitForQueuedToggle()
+
+    expect(storedTocOpen(storage)).toBeNull()
+  })
+
+  test('a genuine reader toggle after the initial sync is remembered', async () => {
+    const storage = new MemoryStorage()
+    const details = document.createElement('details')
+    document.body.append(details)
+
+    wireTocToggle(details, storage, /* isNarrowViewport */ true)
+    await waitForQueuedToggle()
+    expect(storedTocOpen(storage)).toBeNull()
+
+    details.open = true
+    await waitForQueuedToggle()
+
+    expect(storedTocOpen(storage)).toBe(true)
+  })
+
+  test('applying a stored preference does not re-queue a synthetic write to storage', async () => {
+    const storage = new MemoryStorage()
+    rememberTocOpenSafely(storage, false)
+    const setItem = vi.spyOn(storage, 'setItem')
+    const details = document.createElement('details')
+    details.open = true
+    document.body.append(details)
+
+    wireTocToggle(details, storage, /* isNarrowViewport */ false)
+
+    expect(details.open).toBe(false)
+    await waitForQueuedToggle()
+
+    expect(setItem).not.toHaveBeenCalled()
   })
 })
 
