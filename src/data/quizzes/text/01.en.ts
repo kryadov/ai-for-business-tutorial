@@ -5,10 +5,10 @@ export const en: Record<string, QuestionText> = {
     prompt:
       'A colleague drafts a proposal line: "We will use the ChatGPT API to power the client\'s support bot." What is the precise problem with that sentence?',
     options: [
-      'It collapses product, model and platform into one word, leaving a technical listener unable to tell what would actually be bought or integrated',
-      'It should say "the OpenAI API" only, because model names are irrelevant',
-      'Nothing is wrong; ChatGPT does have an API for building bots this way',
-      'It is correct for support bots but wrong for internal tools',
+      'It collapses product, model and platform into one word, so nobody can tell what is bought.',
+      'It should say "the OpenAI API" instead, because the model name is irrelevant here.',
+      'Nothing is wrong — ChatGPT does expose an API for building support bots this way.',
+      'It is fine for a support bot but wrong for an internal tool on the same stack.',
     ],
     explanations: [
       'Correct. Saying "the ChatGPT API" tells a technical listener that product, model and platform were never separated, so nobody on the call can tell what is being bought, integrated or billed.',
@@ -19,7 +19,7 @@ export const en: Record<string, QuestionText> = {
   },
   '01-building-on-claude': {
     prompt:
-      'A client emails: "Our team already has a workflow built on Claude — can you extend it?" Before answering, what is the one clarifying question this section says you must ask?',
+      'A client emails: "Our team already has a workflow built on Claude — can you extend it?" Before answering, which clarifying question has to come first?',
     options: [
       'Which version number of Claude they are running',
       'Whether they mean the chat app open in a browser tab, or a model reached through an API',
@@ -37,10 +37,10 @@ export const en: Record<string, QuestionText> = {
     prompt:
       'A logistics company already runs all of its infrastructure on a specific cloud and is contractually barred from moving data off it. They ask you to "just use the best model." What should you determine before naming any model?',
     options: [
-      'Which model scores highest on public benchmarks',
-      "Whether the model supports their industry's terminology",
-      'Which platform can serve a suitable model inside the cloud they are already locked into, and whose contract governs that platform',
-      'Which company trained the model they end up using',
+      'Which model currently scores highest on the public benchmarks people cite.',
+      "Whether the model handles their industry's terminology and document formats.",
+      'Which platform can serve a suitable model inside the cloud they cannot leave.',
+      'Which company trained the model they will end up putting into production.',
     ],
     explanations: [
       "A benchmark score doesn't answer the constraint in front of you: a top-scoring model served from the wrong platform is still unusable if it can't sit inside their cloud.",
@@ -53,10 +53,10 @@ export const en: Record<string, QuestionText> = {
     prompt:
       'A prospect says: "Is Llama better than ChatGPT?" What makes this comparison a category error rather than just an imprecise question?',
     options: [
-      'Llama is newer, so any comparison is premature',
-      'ChatGPT is more expensive, so the comparison is about price, not quality',
-      'Llama only runs on specialized hardware, so the two are not interchangeable',
-      'The two names sit at different layers — one is a model you deploy on infrastructure, the other is a product you open with no equivalent download',
+      'Llama is newer than ChatGPT, so comparing their quality is premature for now.',
+      'ChatGPT costs more to run, so the comparison is really about price, not quality.',
+      'Llama only runs on specialised hardware, so the two are not interchangeable.',
+      'They sit at different layers: one is a model you deploy, the other a product.',
     ],
     explanations: [
       'Release timing has nothing to do with why the comparison fails — even a same-day release would still sit at the wrong layer for this comparison.',
@@ -67,7 +67,7 @@ export const en: Record<string, QuestionText> = {
   },
   '01-placing-a-new-name': {
     prompt:
-      "Mid-call, a client mentions a name you've never heard, then asks what your team can build with it. What is the fastest way to place it, per this section, without pretending to know more than you do?",
+      "Mid-call, a client mentions a name you've never heard, then asks what your team can build with it. What is the fastest way to place it without pretending to know more than you do?",
     options: [
       'Ask what the model scores on recent leaderboards',
       "Ask who built it, whether it's the trained model or something wrapping it, and through whose infrastructure it would run",
@@ -76,9 +76,9 @@ export const en: Record<string, QuestionText> = {
     ],
     explanations: [
       "A leaderboard score presumes you already know which layer you're scoring — company, model or product — and that's exactly what's still undetermined.",
-      'Correct. Company, model-or-product, and platform are the three questions this section says to ask in order, out loud, before the conversation moves on to what the thing can do.',
+      'Correct. Company, model-or-product, and platform are the three questions to ask in order, out loud, before the conversation moves on to what the thing can do.',
       'Pausing the call to read documentation gives up the one advantage in the room: a live person who can just answer the layering questions directly.',
-      "Assuming product is exactly the collapse this section warns against — plenty of names people mention are the underlying model, not something they've opened.",
+      "Assuming product is exactly the collapse that wastes the next twenty minutes — plenty of names people mention are the underlying model, not something they've opened.",
     ],
   },
 }
