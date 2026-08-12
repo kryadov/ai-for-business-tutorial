@@ -40,19 +40,19 @@ export const topicIds: readonly TopicId[] = [
 // see src/data/quizzes/answer-tell.test.ts, extended to cover this bank, for
 // why that matters.
 export const examTopics: readonly ExamTopic[] = [
-  { id: 'chatgpt-vs-gpt', testOptionCount: 4, correct: [1] },
-  { id: 'model-vs-product', testOptionCount: 4, correct: [2] },
-  { id: 'what-rag-is', testOptionCount: 4, correct: [0] },
-  { id: 'when-an-agent', testOptionCount: 4, correct: [3] },
-  { id: 'what-mcp-is', testOptionCount: 4, correct: [1] },
+  { id: 'chatgpt-vs-gpt', testOptionCount: 4, correct: [2] },
+  { id: 'model-vs-product', testOptionCount: 4, correct: [0] },
+  { id: 'what-rag-is', testOptionCount: 4, correct: [3] },
+  { id: 'when-an-agent', testOptionCount: 4, correct: [1] },
+  { id: 'what-mcp-is', testOptionCount: 4, correct: [0] },
   { id: 'api-or-open-source', testOptionCount: 4, correct: [2] },
-  { id: 'data-for-a-project', testOptionCount: 4, correct: [0] },
+  { id: 'data-for-a-project', testOptionCount: 4, correct: [1] },
   { id: 'estimating-roi', testOptionCount: 4, correct: [3] },
-  { id: 'questions-before-tech', testOptionCount: 4, correct: [1] },
-  { id: 'class-for-a-problem', testOptionCount: 4, correct: [2] },
+  { id: 'questions-before-tech', testOptionCount: 4, correct: [2] },
+  { id: 'class-for-a-problem', testOptionCount: 4, correct: [1] },
   { id: 'rag-versus-text2sql', testOptionCount: 4, correct: [0] },
   { id: 'a2a-versus-mcp', testOptionCount: 4, correct: [3] },
-  { id: 'guardrails-not-later', testOptionCount: 4, correct: [1] },
+  { id: 'guardrails-not-later', testOptionCount: 4, correct: [2] },
 ] as const
 
 export function examTopicById(id: string): ExamTopic | undefined {

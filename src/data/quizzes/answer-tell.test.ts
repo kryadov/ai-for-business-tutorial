@@ -142,4 +142,39 @@ describe('the correct answer must not be guessable from its shape', () => {
     const indexes = examTopics.map((topic) => topic.correct.join(','))
     expect(new Set(indexes).size, 'the exam puts every answer at the same position').toBeGreaterThan(1)
   })
+
+  // Variety is not enough. The exam's first answer key was 1,2,0,3 repeating:
+  // every index used, never twice in a row, and completely predictable after
+  // four questions. A reader who learns the first four answers from the
+  // per-question feedback then keys the remaining nine without reading a word,
+  // which is the same defect as the length tell wearing a different shape.
+  test('the exam answer key follows no repeating pattern', () => {
+    const key = examTopics.map((topic) => topic.correct.join(','))
+
+    for (let period = 2; period <= Math.floor(key.length / 2); period += 1) {
+      const repeats = key.every((value, i) => i < period || value === key[i - period])
+      expect(
+        repeats,
+        `the answer key repeats with period ${period}: ${key.join(' ')} — ` +
+          `a reader who learns the first ${period} answers can predict the rest`,
+      ).toBe(false)
+    }
+  })
+
+  // Pooling the exam's 26 rows with the quizzes' 110 lets an entirely rotten
+  // exam hide inside a healthy average, so each bank is measured on its own.
+  test('no single bank keys the longest option too often', () => {
+    const byBank = new Map<string, Measured[]>()
+    for (const row of measure()) {
+      byBank.set(row.quizId, [...(byBank.get(row.quizId) ?? []), row])
+    }
+
+    for (const [bank, rows] of byBank) {
+      const tells = rows.filter((r) => r.longestIsCorrect && r.margin > PERCEPTIBLE)
+      expect(
+        tells.length / rows.length,
+        `${bank}: ${tells.length} of ${rows.length} questions key a visibly longer option`,
+      ).toBeLessThanOrEqual(1 / 3)
+    }
+  })
 })

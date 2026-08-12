@@ -38,7 +38,6 @@ describe('exam data integrity', () => {
     expect(new Set(ids).size).toBe(ids.length)
   })
 
-  // Expected to fail until the remaining twelve topics are written.
   test('every topic is written in both locales', () => {
     for (const topic of examTopics) {
       for (const locale of LOCALES) {
@@ -47,7 +46,6 @@ describe('exam data integrity', () => {
     }
   })
 
-  // Expected to fail until the remaining twelve topics are written.
   test('option and explanation counts match the skeleton in both locales', () => {
     for (const topic of examTopics) {
       for (const locale of LOCALES) {

@@ -21,6 +21,8 @@ export default function Exam({ locale }: Props) {
         <button
           type="button"
           role="tab"
+          id="exam-tab-test"
+          aria-controls="exam-panel"
           aria-selected={mode === 'test'}
           className="rounded border border-slate-400 px-3 py-1 aria-selected:bg-slate-900 aria-selected:text-white"
           onClick={() => setMode('test')}
@@ -30,6 +32,8 @@ export default function Exam({ locale }: Props) {
         <button
           type="button"
           role="tab"
+          id="exam-tab-cards"
+          aria-controls="exam-panel"
           aria-selected={mode === 'cards'}
           className="rounded border border-slate-400 px-3 py-1 aria-selected:bg-slate-900 aria-selected:text-white"
           onClick={() => setMode('cards')}
@@ -41,7 +45,13 @@ export default function Exam({ locale }: Props) {
       {/* Switching modes remounts the branch below with fresh state — an
           in-progress run in one mode is abandoned, never mixed with the
           other, which is what "reversible at any time" means here. */}
-      {mode === 'test' ? <TestMode locale={locale} /> : <CardsMode locale={locale} />}
+      <div
+        id="exam-panel"
+        role="tabpanel"
+        aria-labelledby={mode === 'test' ? 'exam-tab-test' : 'exam-tab-cards'}
+      >
+        {mode === 'test' ? <TestMode locale={locale} /> : <CardsMode locale={locale} />}
+      </div>
     </section>
   )
 }

@@ -17,14 +17,14 @@ export const en: Record<string, TopicText> = {
       'A client says: "We already pay for ChatGPT Plus, so we can just point our workflow automation at GPT-4 through that same subscription." How do you respond?',
     testOptions: [
       'Yes — Plus already includes API access to the model',
-      'No — ChatGPT is the product; automation needs a separate API account',
       "It doesn't matter which one the team uses",
+      'No — ChatGPT is the product; automation needs a separate API account',
       'GPT is just the old version that ChatGPT replaced',
     ],
     testExplanations: [
       'A ChatGPT Plus subscription pays for the chat interface a person logs into. It carries no API key, and a workflow cannot authenticate against a website login.',
-      'Correct. ChatGPT is a product with its own interface and subscription; the model behind it is sold separately through an API, with its own account, billing and terms — conflating the two is how a client ends up promising an integration nobody can build.',
       'It decides the whole shape of the proposal: one is a seat a person clicks around in, the other is a metered service a system calls. Getting this wrong sizes the project incorrectly from the start.',
+      'Correct. ChatGPT is a product with its own interface and subscription; the model behind it is sold separately through an API, with its own account, billing and terms — conflating the two is how a client ends up promising an integration nobody can build.',
       'GPT is not discontinued — it is the model family that ChatGPT, the API and other products are all built on. The two exist side by side today, not one replacing the other.',
     ],
     cardQuestion: 'What is the difference between ChatGPT and GPT?',
@@ -36,15 +36,15 @@ export const en: Record<string, TopicText> = {
     testPrompt:
       'A client\'s IT director opens the call with: "We\'ve picked our AI vendor, so that decision is made — we can go straight to features." What do you ask next?',
     testOptions: [
-      'Nothing — naming the vendor settles the architecture',
-      'Which model version they intend to lock in first',
       'Which layer they picked: company, model, platform or product',
+      'Which model version they intend to lock in first',
+      'Nothing — naming the vendor settles the architecture',
       'Whether a competing vendor scored better on benchmarks',
     ],
     testExplanations: [
-      'A vendor name routinely stands for the company that trained the model, the platform that hosts and bills it, or the finished product a person opens — three different contracts and three different data paths, none of which the name alone settles.',
-      'Version pinning is a real question, but it sits underneath this one. Until you know whether they bought a model, a platform or a product, there is nothing yet whose version you could pin.',
       'Correct. One word covers four layers — the company that trains, the model that was trained, the platform that hosts and bills it, and the product a person opens — and the contract, the data-residency answer and the integration work differ at every one of them. Asking which layer they actually bought takes ten seconds and prevents a statement of work built on the wrong one.',
+      'Version pinning is a real question, but it sits underneath this one. Until you know whether they bought a model, a platform or a product, there is nothing yet whose version you could pin.',
+      'A vendor name routinely stands for the company that trained the model, the platform that hosts and bills it, or the finished product a person opens — three different contracts and three different data paths, none of which the name alone settles.',
       'Benchmarks argue about the model layer only. They cannot tell you whose contract applies, which region the data sits in, or whether the thing in question is integrable at all.',
     ],
     cardQuestion:
@@ -57,16 +57,16 @@ export const en: Record<string, TopicText> = {
     testPrompt:
       'A client says: "So once we plug our policy documents in, the model will have learned our company and we can stop worrying about updates?" What do you tell them?',
     testOptions: [
-      'No — retrieval hands it passages at the moment of the question',
+      'Only for documents uploaded before the system first went live',
       "Yes — the documents become part of what the model knows from then on",
       'Yes, after an overnight retraining run over the new documents',
-      'Only for documents uploaded before the system first went live',
+      'No — retrieval hands it passages at the moment of the question',
     ],
     testExplanations: [
-      "Correct. Retrieval finds the passages that match the question and puts them into that one prompt; nothing persists afterwards. That is why deleting a document changes tomorrow's answer immediately, why corrections and freshness are configuration rather than a retraining project with a budget line, and why access control has to be solved at the index rather than hoped for from the model.",
+      'Retrieval reads the index as it stands at the moment of each question, so a document added this morning is answerable this afternoon, and one removed this morning is already gone from the answers.',
       "The model's weights are untouched by retrieval. If nothing were retrieved on the next question, it would answer exactly as if it had never seen those documents at all — which is also the honest test to offer the client.",
       'There is no retraining step in a retrieval system, overnight or otherwise. Promising one puts a schedule and a budget line into the proposal for work that never happens, and sets an expectation you cannot meet.',
-      'Retrieval reads the index as it stands at the moment of each question, so a document added this morning is answerable this afternoon, and one removed this morning is already gone from the answers.',
+      "Correct. Retrieval finds the passages that match the question and puts them into that one prompt; nothing persists afterwards. That is why deleting a document changes tomorrow's answer immediately, why corrections and freshness are configuration rather than a retraining project with a budget line, and why access control has to be solved at the index rather than hoped for from the model.",
     ],
     cardQuestion: 'What is RAG, and what does it not do?',
     cardAnswer:
@@ -78,15 +78,15 @@ export const en: Record<string, TopicText> = {
       'A client says: "We want an agent that takes every incoming invoice, checks it against the purchase order, files it, and notifies accounting." What do you say?',
     testOptions: [
       'Agreed — that is exactly the kind of multi-step work agents do',
-      'It needs several agents: a checker, a filer and a notifier',
-      'Start with an agent and simplify it once volumes are clear',
       'Those steps never vary, so this is a workflow with a trigger',
+      'Start with an agent and simplify it once volumes are clear',
+      'It needs several agents: a checker, a filer and a notifier',
     ],
     testExplanations: [
       'Multiple steps do not make an agent. What makes an agent is a path that changes with the content of the request, and here every invoice goes through the same four steps in the same order.',
-      'Each additional agent multiplies cost, latency and the number of ways a run can fail. Here there is not one genuine decision for the first agent to make, let alone three.',
-      'Starting with the more expensive shape means paying for re-deciding, monitoring and debugging a path that was never in doubt, and simplification rarely gets scheduled once something works.',
       'Correct. Draw the chain for the client and ask whether every case goes through exactly these steps in exactly this order. It does, so this is a workflow with a trigger — cheaper, faster, testable and boring in the way production systems should be. An agent earns its place only where the path genuinely varies with what is in the request.',
+      'Starting with the more expensive shape means paying for re-deciding, monitoring and debugging a path that was never in doubt, and simplification rarely gets scheduled once something works.',
+      'Each additional agent multiplies cost, latency and the number of ways a run can fail. Here there is not one genuine decision for the first agent to make, let alone three.',
     ],
     cardQuestion: 'When does an agent earn its place, and when is it just complication?',
     cardAnswer:
@@ -97,14 +97,14 @@ export const en: Record<string, TopicText> = {
     testPrompt:
       'A vendor slide says the product is "MCP-ready". The client turns to you and asks what that actually buys them. What do you say?',
     testOptions: [
-      'A faster model, since MCP shortens the path to an answer',
       'A standard way to hand a model its tools and data',
+      'A faster model, since MCP shortens the path to an answer',
       'A security layer that vets what the model may read',
       "A way for their agents to talk to a supplier's agents",
     ],
     testExplanations: [
-      'A connection standard does not change how fast a model answers. Latency comes from the model, the size of the prompt and the tool sitting behind the connection, none of which the standard touches.',
       'Correct. MCP addresses the vertical connection in the diagram: how an application exposes tools and data to a model, so a tool built once can be plugged into different models and applications without rewriting the plumbing each time. It is wiring, which makes the useful follow-up concrete — which tools are actually connected, and what does each one let the system do that it could not do before.',
+      'A connection standard does not change how fast a model answers. Latency comes from the model, the size of the prompt and the tool sitting behind the connection, none of which the standard touches.',
       'A wiring standard describes how a tool is offered to a model, not who is permitted to use it. Permissioning and retrieval scoping remain yours to design, to build and to price.',
       'That is the horizontal problem — one agent talking to another — which is what A2A addresses. Same diagram, different axis, and a project can need either, both or neither.',
     ],
@@ -137,14 +137,14 @@ export const en: Record<string, TopicText> = {
     testPrompt:
       'A client wants an assistant that answers employees\' questions about internal policy, and asks when you could start. What do you check first?',
     testOptions: [
-      'Which documents exist, who owns them, and who may read each',
       'Which model has the largest context window for the policies',
+      'Which documents exist, who owns them, and who may read each',
       'Whether the team prefers a chat window or an email interface',
       'How many employees will use it in the first month of launch',
     ],
     testExplanations: [
-      'Correct. A retrieval project stands or falls on the corpus: documents that actually contain the answers, an owner who keeps them current so versions stop contradicting each other, and permissions checked at the source so the assistant only surfaces what the asking employee could already open. All three belong on discovery, before an architecture exists and long before a demo goes well.',
       'Context size is a late configuration detail, and a larger window helps not at all when the policies are contradictory, unowned, or sitting in folders nobody has checked the permissions on.',
+      'Correct. A retrieval project stands or falls on the corpus: documents that actually contain the answers, an owner who keeps them current so versions stop contradicting each other, and permissions checked at the source so the assistant only surfaces what the asking employee could already open. All three belong on discovery, before an architecture exists and long before a demo goes well.',
       'The interface is worth agreeing on, and it changes nothing about whether the answers exist to be retrieved. A well-designed window over an unmaintained wiki still answers badly, just more attractively.',
       'Usage volume prices the running cost and sizes the rollout, which makes it a fair question later. It cannot tell you whether there is anything worth building on in the first place.',
     ],
@@ -178,14 +178,14 @@ export const en: Record<string, TopicText> = {
       'Ten minutes into a first call the client says: "We need a chatbot on the website." Where do you take the conversation?',
     testOptions: [
       'To the model options, so scoping can start this same week',
-      'To what a visitor should be able to do that they cannot today',
       "To whether they have seen a competitor's chatbot they liked",
+      'To what a visitor should be able to do that they cannot today',
       'To a demo, since seeing one working usually settles requirements',
     ],
     testExplanations: [
       'Naming a model first fixes the least consequential decision in the project and leaves the consequential ones untouched. Swapping models later is usually configuration; swapping the problem is a new project.',
-      'Correct. Asking what changes rather than what gets built turns the request back into the outcome it stands for, without ever sounding like a refusal. From there the rest follows in order: which number is currently wrong and what it sits at today, who loses the most time to it, and only then whether a chatbot is even the right shape for it.',
       'A competitor they admired tells you what impressed the room, which is useful colour and no substitute for a problem. It also quietly imports somebody else\'s requirements into a project that has not defined its own.',
+      'Correct. Asking what changes rather than what gets built turns the request back into the outcome it stands for, without ever sounding like a refusal. From there the rest follows in order: which number is currently wrong and what it sits at today, who loses the most time to it, and only then whether a chatbot is even the right shape for it.',
       'A demo answers "can it do something impressive" and never "what should be different afterwards". Run before the outcome is agreed, it becomes the requirement by default, and the requirement was never discussed.',
     ],
     cardQuestion: 'What do you ask a client before any technology is named?',
@@ -198,14 +198,14 @@ export const en: Record<string, TopicText> = {
       'A logistics client says: "When a shipment is late we want the system to sort it out — notify the customer, rebook a carrier, or escalate to a person, depending on why." Which class is this?',
     testOptions: [
       'RAG over the carrier contracts and the shipping policies',
-      'An assistant that drafts the reply for a dispatcher to send',
       'An agent — the path depends on what is in each case',
+      'An assistant that drafts the reply for a dispatcher to send',
       'A workflow that runs the three steps in a fixed order',
     ],
     testExplanations: [
       'Retrieval ends by handing a passage to a person, and nobody here is waiting to read one. The client asked for something that acts, which retrieval never does no matter how good the index is.',
-      'An assistant leaves a dispatcher deciding on every late shipment, which is precisely the labour the client asked to remove. It becomes the right answer only if they are not permitted to let the system act — worth confirming out loud.',
       'Correct. The system acts on its own, and the path genuinely varies with the content of each case: notify, rebook or escalate depending on why the shipment is late. That is exactly where an agent repays its cost, and the immediate follow-up is which of those three actions is irreversible enough to need a human confirming it before it fires.',
+      'An assistant leaves a dispatcher deciding on every late shipment, which is precisely the labour the client asked to remove. It becomes the right answer only if they are not permitted to let the system act — worth confirming out loud.',
       'A workflow fixes one sequence for every run, which here would produce the right action on some late shipments and the wrong one on the rest — silently, and at speed.',
     ],
     cardQuestion: 'How do you match a business problem to a solution class?',
@@ -258,14 +258,14 @@ export const en: Record<string, TopicText> = {
       'A client wants to cut scope: "Ship the core assistant now, and we\'ll add the permissions and review layer before we open it up to everyone." How do you respond?',
     testOptions: [
       'Reasonable — the review layer is a later phase by nature',
-      'Permissioning is architecture — adding it later means rebuilding',
       'Fine, as long as the system prompt forbids the risky answers',
+      'Permissioning is architecture — adding it later means rebuilding',
       "Fine if we keep the pilot to one department's own folder",
     ],
     testExplanations: [
       'Retrieval scoping, input filtering and review touch how the system is built rather than how it is finished. And the retrofit rarely happens on a calm Tuesday by choice — it happens the week after an incident, under worse conditions than any design review would have offered.',
-      'Correct. Access control at the source, retrieval scoped to what the asking user could already open, and a review step on high-stakes answers all shape the architecture itself, so adding them once real users depend on current behaviour usually means rebuilding. Put them in the estimate and the timeline during scoping, as line items with a cost and a week attached — not as a change request three weeks before go-live.',
       'A system prompt is a strong suggestion competing for attention with whatever text the model is reading right now, not a locked gate. It does little against instructions that arrive inside a document the model was asked to summarise.',
+      'Correct. Access control at the source, retrieval scoped to what the asking user could already open, and a review step on high-stakes answers all shape the architecture itself, so adding them once real users depend on current behaviour usually means rebuilding. Put them in the estimate and the timeline during scoping, as line items with a cost and a week attached — not as a change request three weeks before go-live.',
       'A clean single-department pilot is exactly what hides this problem. It works beautifully, then meets ten years of unowned folders — and indexing checks what is there, never who was allowed to read it.',
     ],
     cardQuestion:

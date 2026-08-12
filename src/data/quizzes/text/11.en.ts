@@ -37,10 +37,10 @@ export const en: Record<string, QuestionText> = {
     prompt:
       'An engineering lead says: "We\'ll self-host an open model — no per-token fees, so it comes out cheaper than the API." Which cost is missing from that comparison?',
     options: [
-      'GPUs sized for the peak, a team keeping the model served and patched, and every release to catch up with',
-      'The one-off cost of downloading the open weights and storing them locally',
-      'The engineering time spent tuning a system prompt to the open model',
-      'Customs duty on the imported GPUs and the currency swing between orders',
+      'GPUs sized for the peak, a team keeping it served, and every release to chase.',
+      'The one-off cost of downloading the open weights and storing them locally.',
+      'The engineering time spent tuning a system prompt to the open model.',
+      'Customs duty on the imported GPUs and the currency swing between orders.',
     ],
     explanations: [
       'Correct. The token fee is usually the smallest line in the total. Hardware has to be sized for the peak rather than the average, somebody has to keep it served and patched, and each new release has to be caught up with by hand instead of arriving on its own.',
