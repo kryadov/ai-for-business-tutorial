@@ -1,8 +1,13 @@
 import { describe, expect, test } from 'vitest'
 import { quizzes } from './index'
 import { quizText } from './text'
+import { examTopics } from '../exam'
+import { examText } from '../exam.text'
 
 const LOCALES = ['en', 'ru'] as const
+// The exam bank is measured alongside the section quizzes below under this
+// synthetic id — same shape (id, optionCount, correct), same rules apply.
+const EXAM_ID = 'exam'
 
 // The quiz island renders options in declared order and never shuffles them.
 // So any property that correlates with correctness is a free pass: a reader who
@@ -56,6 +61,33 @@ function measure(): Measured[] {
     }
   }
 
+  for (const topic of examTopics) {
+    for (const locale of LOCALES) {
+      const text = examText[locale][topic.id]
+      if (!text) continue
+
+      const lengths = text.testOptions.map((option) => option.length)
+      const longest = Math.max(...lengths)
+      const longestIndexes = lengths.flatMap((l, i) => (l === longest ? [i] : []))
+      const longestIsCorrect =
+        longestIndexes.length === 1 && topic.correct.includes(longestIndexes[0])
+
+      const others = lengths.filter((_, i) => !topic.correct.includes(i))
+      const correctLengths = lengths.filter((_, i) => topic.correct.includes(i))
+      const margin = Math.max(...correctLengths) - Math.max(...others)
+
+      rows.push({
+        quizId: EXAM_ID,
+        questionId: topic.id,
+        locale,
+        lengths,
+        correct: topic.correct,
+        longestIsCorrect,
+        margin,
+      })
+    }
+  }
+
   return rows
 }
 
@@ -101,5 +133,13 @@ describe('the correct answer must not be guessable from its shape', () => {
       const indexes = quiz.questions.map((q) => q.correct.join(','))
       expect(new Set(indexes).size, `${quizId} puts every answer at the same position`).toBeGreaterThan(1)
     }
+  })
+
+  // Checked against the skeleton directly (src/data/exam.ts), not the text —
+  // so this holds regardless of how many of the thirteen topics have wording
+  // yet.
+  test('within the exam, the correct index is not always the same', () => {
+    const indexes = examTopics.map((topic) => topic.correct.join(','))
+    expect(new Set(indexes).size, 'the exam puts every answer at the same position').toBeGreaterThan(1)
   })
 })

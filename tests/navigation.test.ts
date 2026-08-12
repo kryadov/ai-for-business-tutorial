@@ -1,10 +1,21 @@
 import { experimental_AstroContainer as AstroContainer } from 'astro/container'
+import reactRenderer from '@astrojs/react/server.js'
 import { describe, expect, test } from 'vitest'
 import Sidebar from '../src/components/Sidebar.astro'
 import ContentLayout from '../src/components/ContentLayout.astro'
 import LocaleSwitcher from '../src/components/LocaleSwitcher.astro'
 import GlossaryPage from '../src/pages/[locale]/glossary.astro'
+import ExamPage from '../src/pages/[locale]/exam.astro'
 import { sections } from '../src/data/sections'
+
+// The exam page mounts the Exam island (client:visible), which the container
+// API cannot render without a registered React renderer — Astro pages that
+// carry no island (Sidebar, ContentLayout, GlossaryPage) don't need this.
+async function createContainerWithReact() {
+  const container = await AstroContainer.create()
+  container.addServerRenderer({ renderer: reactRenderer })
+  return container
+}
 
 // The aside must be sticky and self-aligned (defect A) and reachable on
 // mobile rather than `hidden` (defect C). Both the section page and the
@@ -107,6 +118,26 @@ describe('Sidebar', () => {
 
     expect(html).toContain('href="/ru/"')
   })
+
+  test('links to the final exam with a locale-prefixed href', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(Sidebar, {
+      props: { locale: 'en', titles: {} },
+    })
+
+    expect(html).toContain('href="/en/exam/"')
+    expect(html).toContain('Final exam')
+  })
+
+  test('the exam link is also locale-prefixed in Russian', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(Sidebar, {
+      props: { locale: 'ru', titles: {} },
+    })
+
+    expect(html).toContain('href="/ru/exam/"')
+    expect(html).toContain('Финальный экзамен')
+  })
 })
 
 describe('ContentLayout', () => {
@@ -154,6 +185,31 @@ describe('glossary page', () => {
       expect(html).toContain(`data-section-id="${section.sectionId}"`)
     }
     expect(html).toContain('href="/en/"')
+  })
+})
+
+describe('exam page', () => {
+  test('renders the mode switch and the sidebar around it', async () => {
+    const container = await createContainerWithReact()
+    const html = await container.renderToString(ExamPage, {
+      params: { locale: 'en' },
+    })
+
+    for (const section of sections) {
+      expect(html).toContain(`data-section-id="${section.sectionId}"`)
+    }
+    expect(html).toContain('role="tablist"')
+    expect(html).toContain('Final exam')
+  })
+
+  test('renders in Russian too', async () => {
+    const container = await createContainerWithReact()
+    const html = await container.renderToString(ExamPage, {
+      params: { locale: 'ru' },
+    })
+
+    expect(html).toContain('role="tablist"')
+    expect(html).toContain('Финальный экзамен')
   })
 })
 

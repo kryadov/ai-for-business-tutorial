@@ -113,3 +113,13 @@ export function recordQuiz(storage: Storage, sectionId: string, result: QuizResu
   writeProgress(storage, progress)
   return progress
 }
+
+// Both exam modes write here, sharing the one examResult slot — the exam
+// records a single result per browser, not a history, same as a quiz result
+// being overwritten by a retry.
+export function recordExam(storage: Storage, result: ExamResult): Progress {
+  const progress = readProgress(storage)
+  progress.examResult = result
+  writeProgress(storage, progress)
+  return progress
+}

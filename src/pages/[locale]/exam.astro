@@ -1,0 +1,37 @@
+---
+import { getCollection } from 'astro:content'
+import Layout from '../../components/Layout.astro'
+import ContentLayout from '../../components/ContentLayout.astro'
+import LocaleSwitcher from '../../components/LocaleSwitcher.astro'
+import type { Locale } from '../../core/locale'
+import { parseEntryId } from '../../core/content-id'
+import { t } from '../../data/ui-strings'
+import Exam from '../../islands/Exam'
+
+export function getStaticPaths() {
+  return [
+    { params: { locale: 'en' }, props: {} },
+    { params: { locale: 'ru' }, props: {} },
+  ]
+}
+
+const { locale } = Astro.params as { locale: Locale }
+
+const entries = await getCollection('sections')
+const titles = Object.fromEntries(
+  entries.flatMap((entry) => {
+    const parsed = parseEntryId(entry.id)
+    return parsed?.locale === locale ? [[parsed.slug, entry.data.title]] : []
+  }),
+)
+---
+
+<Layout title={t(locale, 'nav.exam')} locale={locale}>
+  <ContentLayout locale={locale} titles={titles}>
+    <div class="mb-8 flex items-baseline justify-between">
+      <h1 class="text-3xl font-semibold">{t(locale, 'nav.exam')}</h1>
+      <LocaleSwitcher locale={locale} path="exam" />
+    </div>
+    <Exam locale={locale} client:visible />
+  </ContentLayout>
+</Layout>
