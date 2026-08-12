@@ -8,6 +8,8 @@ import { parseEntryId } from '../../../core/content-id'
 import { t } from '../../../data/ui-strings'
 import type { Locale } from '../../../core/locale'
 import Quiz from '../../../islands/Quiz'
+import DecisionTrainer from '../../../islands/DecisionTrainer'
+import DiscoveryForm from '../../../islands/DiscoveryForm'
 import { quizFor } from '../../../data/quizzes'
 
 export async function getStaticPaths() {
@@ -53,6 +55,12 @@ const { Content } = await render(entry)
         <div data-read-sentinel data-section-id={section.sectionId} aria-hidden="true"></div>
       )}
     </article>
+    {section && entry.data.status === 'ready' && section.widget === 'trainer' && (
+      <DecisionTrainer locale={locale} client:visible />
+    )}
+    {section && entry.data.status === 'ready' && section.widget === 'discovery' && (
+      <DiscoveryForm locale={locale} client:visible />
+    )}
     {section && hasQuiz && entry.data.status === 'ready' && (
       <Quiz sectionId={section.sectionId} locale={locale} client:visible />
     )}

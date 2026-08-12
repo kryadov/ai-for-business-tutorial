@@ -12,10 +12,13 @@ export interface ExamResult {
   total: number
 }
 
+export type DiscoveryAnswer = string | string[]
+
 export interface Progress {
   readSections: string[]
   quizResults: Record<string, QuizResult>
   examResult?: ExamResult
+  discoveryDraft?: Record<string, DiscoveryAnswer>
 }
 
 const isNonNegativeInt = (v: unknown): v is number =>
@@ -38,6 +41,14 @@ const isQuizResults = (v: unknown): v is Record<string, QuizResult> => {
   return Object.values(v as Record<string, unknown>).every(isQuizResult)
 }
 
+const isDiscoveryAnswer = (v: unknown): v is DiscoveryAnswer =>
+  typeof v === 'string' || isStringArray(v)
+
+const isDiscoveryDraft = (v: unknown): v is Record<string, DiscoveryAnswer> => {
+  if (typeof v !== 'object' || v === null || Array.isArray(v)) return false
+  return Object.values(v as Record<string, unknown>).every(isDiscoveryAnswer)
+}
+
 const isExamResult = (v: unknown): v is ExamResult => {
   if (typeof v !== 'object' || v === null) return false
   const r = v as Record<string, unknown>
@@ -54,6 +65,12 @@ const isProgress = (v: unknown): v is Progress => {
   if (!isStringArray(r.readSections)) return false
   if (!isQuizResults(r.quizResults)) return false
   if ('examResult' in r && r.examResult !== undefined && !isExamResult(r.examResult)) return false
+  if (
+    'discoveryDraft' in r &&
+    r.discoveryDraft !== undefined &&
+    !isDiscoveryDraft(r.discoveryDraft)
+  )
+    return false
   return true
 }
 
@@ -120,6 +137,21 @@ export function recordQuiz(storage: Storage, sectionId: string, result: QuizResu
 export function recordExam(storage: Storage, result: ExamResult): Progress {
   const progress = readProgress(storage)
   progress.examResult = result
+  writeProgress(storage, progress)
+  return progress
+}
+
+// Called on every keystroke/selection change in the discovery checklist, so
+// a reader who leaves mid-block does not lose their notes. Keyed by question
+// id, same granularity as the checklist itself, not by section — there is
+// only one discovery checklist in the whole handbook.
+export function saveDiscoveryDraft(
+  storage: Storage,
+  questionId: string,
+  value: DiscoveryAnswer,
+): Progress {
+  const progress = readProgress(storage)
+  progress.discoveryDraft = { ...progress.discoveryDraft, [questionId]: value }
   writeProgress(storage, progress)
   return progress
 }

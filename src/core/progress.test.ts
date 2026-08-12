@@ -1,5 +1,12 @@
 import { beforeEach, describe, expect, test } from 'vitest'
-import { markRead, readProgress, recordQuiz, sectionMarks, writeProgress } from './progress'
+import {
+  markRead,
+  readProgress,
+  recordQuiz,
+  saveDiscoveryDraft,
+  sectionMarks,
+  writeProgress,
+} from './progress'
 
 class MemoryStorage implements Storage {
   private map = new Map<string, string>();
@@ -92,6 +99,43 @@ describe('readProgress', () => {
     }))
     expect(readProgress(storage)).toEqual({ readSections: [], quizResults: {} })
   })
+
+  test('round-trips a valid discoveryDraft holding both single and multi-value answers', () => {
+    const progress = {
+      readSections: [],
+      quizResults: {},
+      discoveryDraft: { '09-block-a-owner': 'Jane', '09-block-a-flags': ['no-metric', 'no-owner'] },
+    }
+    writeProgress(storage, progress)
+    expect(readProgress(storage)).toEqual(progress)
+  })
+
+  test('survives a discoveryDraft whose value is neither a string nor a string array', () => {
+    storage.setItem('afb:progress:v1', JSON.stringify({
+      readSections: [],
+      quizResults: {},
+      discoveryDraft: { '09-block-a-owner': 42 },
+    }))
+    expect(readProgress(storage)).toEqual({ readSections: [], quizResults: {} })
+  })
+
+  test('survives a discoveryDraft whose array value contains a non-string', () => {
+    storage.setItem('afb:progress:v1', JSON.stringify({
+      readSections: [],
+      quizResults: {},
+      discoveryDraft: { '09-block-a-flags': ['ok', 3] },
+    }))
+    expect(readProgress(storage)).toEqual({ readSections: [], quizResults: {} })
+  })
+
+  test('survives discoveryDraft being an array rather than an object', () => {
+    storage.setItem('afb:progress:v1', JSON.stringify({
+      readSections: [],
+      quizResults: {},
+      discoveryDraft: ['Jane'],
+    }))
+    expect(readProgress(storage)).toEqual({ readSections: [], quizResults: {} })
+  })
 })
 
 describe('markRead', () => {
@@ -140,6 +184,38 @@ describe('recordQuiz', () => {
       answers: [],
     })
     expect(progress.quizResults['solution-classes'].score).toBe(1)
+  })
+})
+
+describe('saveDiscoveryDraft', () => {
+  test('stores a single-value answer under the question id', () => {
+    const progress = saveDiscoveryDraft(storage, '09-block-a-owner', 'Jane')
+    expect(progress.discoveryDraft).toEqual({ '09-block-a-owner': 'Jane' })
+  })
+
+  test('stores a multi-value answer as an array', () => {
+    const progress = saveDiscoveryDraft(storage, '09-block-a-flags', ['no-metric', 'no-owner'])
+    expect(progress.discoveryDraft).toEqual({ '09-block-a-flags': ['no-metric', 'no-owner'] })
+  })
+
+  test('merges with earlier answers instead of replacing the whole draft', () => {
+    saveDiscoveryDraft(storage, '09-block-a-owner', 'Jane')
+    const progress = saveDiscoveryDraft(storage, '09-block-b-cadence', 'weekly')
+    expect(progress.discoveryDraft).toEqual({
+      '09-block-a-owner': 'Jane',
+      '09-block-b-cadence': 'weekly',
+    })
+  })
+
+  test('overwrites an earlier answer to the same question', () => {
+    saveDiscoveryDraft(storage, '09-block-a-owner', 'Jane')
+    const progress = saveDiscoveryDraft(storage, '09-block-a-owner', 'John')
+    expect(progress.discoveryDraft).toEqual({ '09-block-a-owner': 'John' })
+  })
+
+  test('persists across reads', () => {
+    saveDiscoveryDraft(storage, '09-block-a-owner', 'Jane')
+    expect(readProgress(storage).discoveryDraft).toEqual({ '09-block-a-owner': 'Jane' })
   })
 })
 
