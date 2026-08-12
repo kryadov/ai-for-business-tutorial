@@ -83,7 +83,7 @@ describe('the red flag rules', () => {
   // does not fail a build — it silently switches the flag off, and the reader
   // sees an all-clear on a checklist that should be shouting.
   test('every condition names a question that exists', () => {
-    const known = new Set(discoveryQuestions.map((question) => question.id))
+    const known = new Set<string>(discoveryQuestions.map((question) => question.id))
     for (const flag of discoveryFlags) {
       for (const condition of flag.when) {
         expect(known.has(condition.question), `${flag.id} watches ${condition.question}`).toBe(true)
@@ -111,9 +111,9 @@ describe('the red flag rules', () => {
   })
 
   test('every flag sends the reader to a section that exists', () => {
-    const known = new Set(sections.map((section) => section.sectionId))
+    const known = new Set<string>(sections.map((section) => section.sectionId))
     for (const flag of discoveryFlags) {
-      expect(known.has(flag.reread as never), `${flag.id} points at ${flag.reread}`).toBe(true)
+      expect(known.has(flag.reread), `${flag.id} points at ${flag.reread}`).toBe(true)
     }
   })
 
