@@ -16,6 +16,11 @@ export const en: Record<TermId, Term> = {
     definition:
       'The maximum amount of text a model can consider at once, counted in tokens. Anything beyond it has to be selected, summarised or dropped.',
   },
+  'system-prompt': {
+    term: 'System prompt',
+    definition:
+      'The standing instruction an application places in front of a model: who it is, what it may do, how it should sound. It shapes answers strongly, but it is not a lock — the model reads it as text, alongside everything else it is given.',
+  },
   'embeddings': {
     term: 'Embeddings',
     definition:
@@ -75,5 +80,10 @@ export const en: Record<TermId, Term> = {
     term: 'Inference',
     definition:
       'Running a trained model to produce an answer. It is the recurring cost of an AI system, as opposed to the one-off cost of building it.',
+  },
+  'discovery': {
+    term: 'Discovery',
+    definition:
+      'The conversations that precede a proposal, where you establish the client\'s problem, process, available data and constraints. While discovery is running, no architecture, timeline or price has been promised yet.',
   },
 }

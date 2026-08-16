@@ -20,7 +20,7 @@ This has a consequence worth saying to a client directly: the model does not dis
 
 A <T id="token" locale="en">token</T> is a chunk of text — often a word, sometimes a fragment of one, sometimes a single punctuation mark. You do not need the tokenizer's rules. You need two facts about tokens, because both show up on an invoice and in a support ticket:
 
-First, tokens are what a vendor charges for. Every API call is priced per token, input and output counted separately in most pricing schemes. A verbose system prompt, a long document pasted into context, a chatty back-and-forth — all of it is metered in tokens, and the meter runs on both what you send and what you get back.
+First, tokens are what a vendor charges for. Every API call is priced per token, input and output counted separately in most pricing schemes. A verbose <T id="system-prompt" locale="en">system prompt</T>, a long document pasted into context, a chatty back-and-forth — all of it is metered in tokens, and the meter runs on both what you send and what you get back.
 
 Second, tokens are what a <T id="context-window" locale="en">context window</T> is measured in. Which brings up the more important limit.
 

@@ -2,6 +2,7 @@ export type TermId =
   | 'llm'
   | 'token'
   | 'context-window'
+  | 'system-prompt'
   | 'embeddings'
   | 'vector-db'
   | 'rag'
@@ -14,6 +15,7 @@ export type TermId =
   | 'prompt-injection'
   | 'guardrails'
   | 'inference'
+  | 'discovery'
 
 export interface Term {
   readonly term: string
@@ -21,7 +23,7 @@ export interface Term {
 }
 
 export const termIds: readonly TermId[] = [
-  'llm', 'token', 'context-window', 'embeddings', 'vector-db', 'rag', 'text2sql',
-  'agent', 'workflow', 'tool-calling', 'mcp', 'a2a', 'prompt-injection', 'guardrails',
-  'inference',
+  'llm', 'token', 'context-window', 'system-prompt', 'embeddings', 'vector-db', 'rag',
+  'text2sql', 'agent', 'workflow', 'tool-calling', 'mcp', 'a2a', 'prompt-injection',
+  'guardrails', 'inference', 'discovery',
 ] as const
