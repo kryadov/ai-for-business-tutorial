@@ -61,6 +61,11 @@ export const en: Record<TermId, Term> = {
     definition:
       'Agent2Agent: a protocol for agents built by different teams to discover each other and delegate work. It addresses a different layer than MCP rather than competing with it.',
   },
+  'prompt-injection': {
+    term: 'Prompt injection',
+    definition:
+      'Text a model reads as data and then obeys as an instruction. It arrives either in the chat message itself or from inside a document, email or web page the model was asked to read.',
+  },
   'guardrails': {
     term: 'Guardrails',
     definition:

@@ -11,6 +11,7 @@ export type TermId =
   | 'tool-calling'
   | 'mcp'
   | 'a2a'
+  | 'prompt-injection'
   | 'guardrails'
   | 'inference'
 
@@ -21,5 +22,6 @@ export interface Term {
 
 export const termIds: readonly TermId[] = [
   'llm', 'token', 'context-window', 'embeddings', 'vector-db', 'rag', 'text2sql',
-  'agent', 'workflow', 'tool-calling', 'mcp', 'a2a', 'guardrails', 'inference',
+  'agent', 'workflow', 'tool-calling', 'mcp', 'a2a', 'prompt-injection', 'guardrails',
+  'inference',
 ] as const

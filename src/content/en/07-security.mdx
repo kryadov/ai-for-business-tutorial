@@ -36,7 +36,9 @@ This is the most underrated topic in this handbook, because it fails silently an
 
 The fix is not a smarter model. It is permissioning done at the source and re-checked at query time — the assistant should only retrieve what the asking user could already open directly. This belongs on discovery, not as a penetration-test finding after launch: what is in the folders that will feed the index, and who can currently open each one?
 
-## 7.3 Prompt injection, direct and indirect
+## 7.3 Whose instructions the model follows
+
+The third question sounds mild and answers badly: whose instructions is the model actually following? Not necessarily yours. Everything it receives arrives as one undifferentiated block of text — the system prompt you configured, the user's message, and the contents of whatever document was attached. Smuggling a command into that block disguised as ordinary content is called <T id="prompt-injection" locale="en">prompt injection</T>, and it can arrive from either of two directions.
 
 Direct injection is a user typing "ignore your previous instructions" into the chat box — the easier half, because at least you can see the attacker.
 
